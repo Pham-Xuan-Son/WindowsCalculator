@@ -1249,6 +1249,14 @@ const testCases = [
       result: "0",
     },
   },
+  {
+    id: "square" + 11,
+    input: "6 2√x x2",
+    expected: {
+      formula: "sqr(√(6))",
+      result: "6",
+    },
+  },
   //test 2√x
   {
     id: "2√x" + 1,
@@ -1264,6 +1272,14 @@ const testCases = [
     expected: {
       formula: "5 + √(negate(5))",
       result: "Invalid input",
+    },
+  },
+  {
+    id: "2√x" + 3,
+    input: "6 1/x 2√x",
+    expected: {
+      formula: "√(1/(6))",
+      result: "0.408248290463863",
     },
   },
   //test 1/x
@@ -1289,6 +1305,14 @@ const testCases = [
     expected: {
       formula: "1/(5) / negate(1/(0.2)) =",
       result: "-0.04",
+    },
+  },
+  {
+    id: "1/x" + 4,
+    input: "5 2√x 1/x",
+    expected: {
+      formula: "1/(√(5))",
+      result: "0.4472135954999579",
     },
   },
   //test delete
