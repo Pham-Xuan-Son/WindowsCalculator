@@ -71,6 +71,15 @@ class Calculator {
         ? state.firstvalue
         : calculateResult;
 
+    let displayFormula = String(firstvalue);
+    if (String(firstvalue).includes("sqrt")) {
+      displayFormula = String(firstvalue).replace(/sqrt/g, "√");
+    }
+
+    if (String(firstvalue).includes("recip")) {
+      displayFormula = String(firstvalue).replace(/recip/g, "1/");
+    }
+
     return {
       ...state,
       operator: action.type,
@@ -78,7 +87,7 @@ class Calculator {
       editStatus: EditStatus.NotEditting,
       firstvalue: firstvalue,
       result: calculateResult,
-      display: `${firstvalue} ${action.type}`,
+      display: `${displayFormula} ${action.type}`,
     };
   }
   negate(state, action) {
@@ -101,14 +110,18 @@ class Calculator {
     }
 
     let result;
-    if (state.editStatus !== EditStatus.EditNumber){
-      result = state.editTarget === EditTarget.Second ? eval(secondvalue) : eval(firstvalue);
+    if (state.editStatus !== EditStatus.EditNumber) {
+      result =
+        state.editTarget === EditTarget.Second
+          ? eval(secondvalue)
+          : eval(firstvalue);
     } else {
-      result = String(state.result) === "0"
-      ? state.result
-      : state.result.startsWith("-")
-      ? state.result.slice(1)
-      : "-" + state.result
+      result =
+        String(state.result) === "0"
+          ? state.result
+          : state.result.startsWith("-")
+          ? state.result.slice(1)
+          : "-" + state.result;
     }
 
     return {
@@ -117,11 +130,12 @@ class Calculator {
       firstvalue: firstvalue,
       secondvalue: secondvalue,
       result: result,
-      display: state.editStatus !== EditStatus.EditNumber
-        ? state.editTarget === EditTarget.Second
-          ? `${state.firstvalue} ${state.operator} ${secondvalue}`
-          : `${firstvalue}`
-        : state.display,
+      display:
+        state.editStatus !== EditStatus.EditNumber
+          ? state.editTarget === EditTarget.Second
+            ? `${state.firstvalue} ${state.operator} ${secondvalue}`
+            : `${firstvalue}`
+          : state.display,
     };
   }
   dot(state, action) {
@@ -183,6 +197,165 @@ class Calculator {
           : state.display,
     };
   }
+  square(state, action) {
+    const result = dotVerification(state.result);
+    let firstvalue = state.firstvalue;
+    let secondvalue = state.secondvalue;
+
+    if (state.editStatus === EditStatus.EditFormula) {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `sqr(${state.secondvalue})`;
+      } else {
+        firstvalue = `sqr(${state.firstvalue})`;
+      }
+    } else if (state.editStatus === EditStatus.EditNumber) {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `sqr(${result})`;
+      } else {
+        firstvalue = `sqr(${result})`;
+      }
+    } else {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `sqr(${result})`;
+      } else {
+        firstvalue = `sqr(${result})`;
+      }
+    }
+
+    let finalResult;
+    let calculateResult =
+      state.editTarget === EditTarget.Second
+        ? eval(secondvalue)
+        : eval(firstvalue);
+    if (state.editStatus !== EditStatus.EditNumber) {
+      finalResult = calculateResult;
+    } else {
+      finalResult = calculateResult;
+    }
+
+    return {
+      ...state,
+      firstvalue: firstvalue,
+      secondvalue: secondvalue,
+      editStatus: EditStatus.EditFormula,
+      result: finalResult,
+      display:
+        state.editTarget === EditTarget.Second
+          ? `${state.firstvalue} ${state.operator} ${secondvalue}`
+          : `${firstvalue}`,
+    };
+  }
+
+  doubleSqrt(state, action) {
+    const result = dotVerification(state.result);
+    let firstvalue = state.firstvalue;
+    let secondvalue = state.secondvalue;
+
+    if (state.editStatus === EditStatus.EditFormula) {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `sqrt(${state.secondvalue})`;
+      } else {
+        firstvalue = `sqrt(${state.firstvalue})`;
+      }
+    } else if (state.editStatus === EditStatus.EditNumber) {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `sqrt(${result})`;
+      } else {
+        firstvalue = `sqrt(${result})`;
+      }
+    } else {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `sqrt(${result})`;
+      } else {
+        firstvalue = `sqrt(${result})`;
+      }
+    }
+
+    let finalResult;
+    let calculateResult =
+      state.editTarget === EditTarget.Second
+        ? eval(secondvalue)
+        : eval(firstvalue);
+    if (state.editStatus !== EditStatus.EditNumber) {
+      finalResult = calculateResult;
+    } else {
+      finalResult = calculateResult;
+    }
+
+    let firstvalueConvert = String(firstvalue).replace(/sqrt/g, "√");
+    let secondvalueConvert = String(secondvalue).replace(/sqrt/g, "√");
+
+    if (isNaN(calculateResult) || calculateResult === undefined) {
+      throw "Invalid input";
+    }
+
+    return {
+      ...state,
+      firstvalue: firstvalue,
+      secondvalue: secondvalue,
+      editStatus: EditStatus.EditFormula,
+      result: finalResult,
+      display:
+        state.editTarget === EditTarget.Second
+          ? `${firstvalueConvert} ${state.operator} ${secondvalueConvert}`
+          : `${firstvalueConvert}`,
+    };
+  }
+  reciprocal(state, action) {
+    const result = dotVerification(state.result);
+    let firstvalue = state.firstvalue;
+    let secondvalue = state.secondvalue;
+
+    if (state.editStatus === EditStatus.EditFormula) {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `recip(${state.secondvalue})`;
+      } else {
+        firstvalue = `recip(${state.firstvalue})`;
+      }
+    } else if (state.editStatus === EditStatus.EditNumber) {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `recip(${result})`;
+      } else {
+        firstvalue = `recip(${result})`;
+      }
+    } else {
+      if (state.editTarget === EditTarget.Second) {
+        secondvalue = `recip(${result})`;
+      } else {
+        firstvalue = `recip(${result})`;
+      }
+    }
+
+    let finalResult;
+    let calculateResult =
+      state.editTarget === EditTarget.Second
+        ? eval(secondvalue)
+        : eval(firstvalue);
+    if (state.editStatus !== EditStatus.EditNumber) {
+      finalResult = calculateResult;
+    } else {
+      finalResult = calculateResult;
+    }
+
+    let firstvalueConvert = String(firstvalue).replace(/recip/g, "1/");
+    let secondvalueConvert = String(secondvalue).replace(/recip/g, "1/");
+
+    if (String(finalResult) === "Infinity") {
+      throw "Cannot divide by zero";
+    }
+
+    return {
+      ...state,
+      firstvalue: firstvalue,
+      secondvalue: secondvalue,
+      editStatus: EditStatus.EditFormula,
+      result: finalResult,
+      display:
+        state.editTarget === EditTarget.Second
+          ? `${firstvalueConvert} ${state.operator} ${secondvalueConvert}`
+          : `${firstvalueConvert}`,
+    };
+  }
   equal(state, action) {
     const result = String(dotVerification(state.result));
 
@@ -201,6 +374,14 @@ class Calculator {
 
     const calculateResult = calculateNumbers(fomula, state);
 
+    let displayFormula = String(fomula);
+    if (String(fomula).includes("sqrt")) {
+      displayFormula = String(fomula).replace(/sqrt/g, "√");
+    }
+    if (String(fomula).includes("recip")) {
+      displayFormula = String(fomula).replace(/recip/g, "1/");
+    }
+
     return {
       ...state,
       editTarget: EditTarget.First,
@@ -209,7 +390,7 @@ class Calculator {
         state.editTarget === EditTarget.Second ? result : state.secondvalue,
       editStatus: EditStatus.NotEditting,
       result: calculateResult,
-      display: `${fomula} ${action.type}`,
+      display: `${displayFormula} ${action.type}`,
     };
   }
 }
@@ -251,6 +432,12 @@ export default function calculateReducer(state, action) {
         return calculator.ce(state);
       case "C":
         return initialState;
+      case "x2":
+        return calculator.square(state, action);
+      case "2√x":
+        return calculator.doubleSqrt(state, action);
+      case "1/x":
+        return calculator.reciprocal(state, action);
       case "=":
         return calculator.equal(state, action);
       default:
@@ -295,6 +482,18 @@ function resultLengthValidator(state) {
 
 function negate(value) {
   return -value;
+}
+
+function sqr(value) {
+  return value * value;
+}
+
+function sqrt(value) {
+  return Math.sqrt(value);
+}
+
+function recip(value) {
+  return 1 / value;
 }
 
 export function numberFormatter(value) {
