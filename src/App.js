@@ -242,12 +242,34 @@ function TestChanges({ testStatus }) {
                 // marginBottom: "5px",
               }}
             >
-              <p style={{marginTop: 0, marginBottom: "5px"}}>
-              Test ID: {status.id} =&nbsp;{status.old ? <span style={{color: status.old.passed ? "lightgreen" : "red"}}> {status.old.passed ? "Passed" : "Failed"} </span> : ""} &nbsp;{"=>"}&nbsp; <span style={{color: status.new.passed ? "lightgreen" : "red"}}> {status.new.passed ? "Passed" : "Failed"} </span> {` | Input = [${status.input}]`}
-              <br/>- Result:&nbsp;<span style={{color: status.old.passed ? "lightgreen" : "red"}}>{`[${status.old? status.old.result : ""}]`}</span>&nbsp;{"=>"}&nbsp;<span style={{color: status.new.passed ? "lightgreen" : "red"}}>{`[${status.new.result}]`}</span>
-              {/* <br/>- Formula: old =&nbsp;{`[${status.old? status.old.formula : ""}]`} ; new =&nbsp;{`[${status.new.formula}]`} */}
-              <br/>- Formula:&nbsp;<span style={{color: status.old.passed ? "lightgreen" : "red"}}>{`[${status.old? status.old.formula : ""}]`}</span>&nbsp;{"=>"}&nbsp;<span style={{color: status.new.passed ? "lightgreen" : "red"}}>{`[${status.new.formula}]`}</span>
-              <br/>- Expected: Result =&nbsp;{`[${status.expected.result}]`} ; Formula =&nbsp;{`[${status.expected.formula}]`}</p>
+              {status.old ? (
+                <p style={{marginTop: 0, marginBottom: "5px"}}>
+                Test ID: {status.id} =&nbsp;{status.old ? <span style={{color: status.old.passed ? "lightgreen" : "red"}}> {status.old.passed ? "Passed" : "Failed"} </span> : ""} &nbsp;{"=>"}&nbsp; <span style={{color: status.new.passed ? "lightgreen" : "red"}}> {status.new.passed ? "Passed" : "Failed"} </span> {` | Input = [${status.input}]`}
+                <br/>- Result:&nbsp;<span style={{color: status.old.passed ? "lightgreen" : "red"}}>{`[${status.old? status.old.result : ""}]`}</span>&nbsp;{"=>"}&nbsp;<span style={{color: status.new.passed ? "lightgreen" : "red"}}>{`[${status.new.result}]`}</span>
+                {/* <br/>- Formula: old =&nbsp;{`[${status.old? status.old.formula : ""}]`} ; new =&nbsp;{`[${status.new.formula}]`} */}
+                <br/>- Formula:&nbsp;<span style={{color: status.old.passed ? "lightgreen" : "red"}}>{`[${status.old? status.old.formula : ""}]`}</span>&nbsp;{"=>"}&nbsp;<span style={{color: status.new.passed ? "lightgreen" : "red"}}>{`[${status.new.formula}]`}</span>
+                <br/>- Expected: Result =&nbsp;{`[${status.expected.result}]`} ; Formula =&nbsp;{`[${status.expected.formula}]`}</p>
+              ) : (
+                <p style={{ marginTop: 0, marginBottom: "5px" }}>
+                  New Test ID: {status.id} =&nbsp;
+                  <span style={{ color: status.new.passed ? "lightgreen" : "red" }}>
+                    {" "}
+                    {status.new.passed ? "Passed" : "Failed"}{" "}
+                  </span>{" "}
+                  | Input = [{status.input}]
+                  <br />- Result:&nbsp;
+                  <span style={{ color: status.new.passed ? "lightgreen" : "red" }}>
+                    {`[${status.new.result}]`}
+                  </span>
+                  <br />- Formula:&nbsp;
+                  <span style={{ color: status.new.passed ? "lightgreen" : "red" }}>
+                    </span> 
+                    {`[${status.new.formula}]`}
+                  <br />- Expected: Result =&nbsp;
+                  {`[${status.expected.result}]`} ; Formula =&nbsp;
+                  {`[${status.expected.formula}]`}
+                </p>
+              )}              
             </div>
           ))}
         </div>

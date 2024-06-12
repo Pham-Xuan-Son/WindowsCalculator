@@ -1702,7 +1702,7 @@ const testCases = [
     },
   },
   {
-    id: "percent" + 5,
+    id: "percent" + 7,
     input: "5 + = %",
     expected: {
       formula: "1",
@@ -1710,7 +1710,7 @@ const testCases = [
     },
   },
   {
-    id: "percent" + 5.1,
+    id: "percent" + 7.1,
     input: "5 + = % CE =",
     expected: {
       formula: "0 + 5 =",
@@ -1718,7 +1718,7 @@ const testCases = [
     },
   },
   {
-    id: "percent" + 6,
+    id: "percent" + 8,
     input: "5 + % CE = %",
     expected: {
       formula: "0.25",
