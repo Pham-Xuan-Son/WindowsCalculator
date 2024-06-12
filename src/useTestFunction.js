@@ -1604,6 +1604,128 @@ const testCases = [
       result: "0",
     },
   },
+  //test percent
+  {
+    id: "percent" + 1,
+    input: "%",
+    expected: {
+      formula: "0",
+      result: "0",
+    },
+  },
+  {
+    id: "percent" + 2,
+    input: "% % % %",
+    expected: {
+      formula: "0",
+      result: "0",
+    },
+  },
+  {
+    id: "percent" + 3,
+    input: "5 %",
+    expected: {
+      formula: "0",
+      result: "0",
+    },
+  },
+  {
+    id: "percent" + 3.1,
+    input: "5 . %",
+    expected: {
+      formula: "0",
+      result: "0",
+    },
+  },
+  {
+    id: "percent" + 3.2,
+    input: "5 +/- %",
+    expected: {
+      formula: "0",
+      result: "0",
+    },
+  },
+  {
+    id: "percent" + 3.3,
+    input: "5 = %",
+    expected: {
+      formula: "0",
+      result: "0",
+    },
+  },
+  {
+    id: "percent" + 4,
+    input: "5 + %",
+    expected: {
+      formula: "5 + 0.25",
+      result: "0.25",
+    },
+  },
+  {
+    id: "percent" + 4.1,
+    input: "5 - %",
+    expected: {
+      formula: "5 - 0.25",
+      result: "0.25",
+    },
+  },
+  {
+    id: "percent" + 4.2,
+    input: "5 * %",
+    expected: {
+      formula: "5 * 0.05",
+      result: "0.05",
+    },
+  },
+  {
+    id: "percent" + 4.3,
+    input: "5 / %",
+    expected: {
+      formula: "5 / 0.05",
+      result: "0.05",
+    },
+  },
+  {
+    id: "percent" + 5,
+    input: "5 + 2 %",
+    expected: {
+      formula: "5 + 0.1",
+      result: "0.1",
+    },
+  },
+  {
+    id: "percent" + 6,
+    input: "5 + 2 %",
+    expected: {
+      formula: "5 + 0.1",
+      result: "0.1",
+    },
+  },
+  {
+    id: "percent" + 5,
+    input: "5 + = %",
+    expected: {
+      formula: "1",
+      result: "1",
+    },
+  },
+  {
+    id: "percent" + 5.1,
+    input: "5 + = % CE =",
+    expected: {
+      formula: "0 + 5 =",
+      result: "5",
+    },
+  },
+  {
+    id: "percent" + 6,
+    input: "5 + % CE = %",
+    expected: {
+      formula: "0.25",
+      result: "0.25",
+    },
+  },
+
   //test equal
   {
     id: "equal" + 1,

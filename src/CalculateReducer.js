@@ -92,54 +92,6 @@ class Calculator {
       display: `${firstvalue} ${action.type}`,
     };
   }
-  negate(state, action) {
-    const validationResult = Number(state.result);
-    let firstvalue = state.firstvalue;
-    let secondvalue = state.secondvalue;
-
-    if (state.editStatus === EditStatus.EditFormula) {
-      if (state.editTarget === EditTarget.Second) {
-        secondvalue = `negate(${state.secondvalue})`;
-      } else {
-        firstvalue = `negate(${state.firstvalue})`;
-      }
-    } else if (state.editStatus === EditStatus.NotEditting) {
-      if (state.editTarget === EditTarget.Second) {
-        secondvalue = `negate(${validationResult})`;
-      } else {
-        firstvalue = `negate(${validationResult})`;
-      }
-    }
-
-    let result;
-    if (state.editStatus !== EditStatus.EditNumber) {
-      result =
-        state.editTarget === EditTarget.Second
-          ? eval(secondvalue)
-          : eval(firstvalue);
-    } else {
-      result =
-        String(state.result) === "0"
-          ? state.result
-          : state.result.startsWith("-")
-          ? state.result.slice(1)
-          : "-" + state.result;
-    }
-
-    return {
-      ...state,
-      editStatus: state.editStatus ? state.editStatus : EditStatus.EditFormula,
-      firstvalue: firstvalue,
-      secondvalue: secondvalue,
-      result: result,
-      display:
-        state.editStatus !== EditStatus.EditNumber
-          ? state.editTarget === EditTarget.Second
-            ? `${state.firstvalue} ${state.operator} ${secondvalue}`
-            : `${firstvalue}`
-          : state.display,
-    };
-  }
   dot(state, action) {
     let result = "0" + action.type;
 
@@ -199,115 +151,94 @@ class Calculator {
           : state.display,
     };
   }
-  square(state, action) {
+  fomulaOperator(state, action) {
     const result = Number(state.result);
     let firstvalue = state.firstvalue;
     let secondvalue = state.secondvalue;
 
     if (state.editStatus === EditStatus.EditFormula) {
       if (state.editTarget === EditTarget.Second) {
-        secondvalue = `sqr(${state.secondvalue})`;
+        secondvalue = `${action}(${state.secondvalue})`;
       } else {
-        firstvalue = `sqr(${state.firstvalue})`;
+        firstvalue = `${action}(${state.firstvalue})`;
       }
     } else {
       if (state.editTarget === EditTarget.Second) {
-        secondvalue = `sqr(${result})`;
+        secondvalue = `${action}(${result})`;
       } else {
-        firstvalue = `sqr(${result})`;
+        firstvalue = `${action}(${result})`;
       }
     }
-    state.display =
-      state.editTarget === EditTarget.Second
-        ? `${firstvalue} ${state.operator} ${secondvalue}`
-        : `${firstvalue}`;
 
-    let finalResult =
-      state.editTarget === EditTarget.Second
-        ? calculate(secondvalue)
-        : calculate(firstvalue);
+    if (action === "negate") {
+      state.display =
+        state.editStatus !== EditStatus.EditNumber
+          ? state.editTarget === EditTarget.Second
+            ? `${state.firstvalue} ${state.operator} ${secondvalue}`
+            : `${firstvalue}`
+          : state.display;
+    } else {
+      state.display =
+        state.editTarget === EditTarget.Second
+          ? `${firstvalue} ${state.operator} ${secondvalue}`
+          : `${firstvalue}`;
+    }
+
+    let finalResult;
+    if (state.editStatus === EditStatus.EditNumber && action === "negate") {
+      finalResult =
+        String(state.result) === "0"
+          ? state.result
+          : state.result.startsWith("-")
+          ? state.result.slice(1)
+          : "-" + state.result;
+    } else {
+      finalResult =
+        state.editTarget === EditTarget.Second
+          ? calculate(secondvalue)
+          : calculate(firstvalue);
+    }
 
     return {
       ...state,
+      editStatus:
+        action === "negate"
+          ? state.editStatus
+            ? state.editStatus
+            : EditStatus.EditFormula
+          : EditStatus.EditFormula,
       firstvalue: firstvalue,
       secondvalue: secondvalue,
-      editStatus: EditStatus.EditFormula,
+      // editStatus: EditStatus.EditFormula,
       result: finalResult,
     };
   }
 
-  doubleSqrt(state, action) {
-    const result = Number(state.result);
-    let firstvalue = state.firstvalue;
-    let secondvalue = state.secondvalue;
-
-    if (state.editStatus === EditStatus.EditFormula) {
-      if (state.editTarget === EditTarget.Second) {
-        secondvalue = `sqrt(${state.secondvalue})`;
-      } else {
-        firstvalue = `sqrt(${state.firstvalue})`;
-      }
-    } else {
-      if (state.editTarget === EditTarget.Second) {
-        secondvalue = `sqrt(${result})`;
-      } else {
-        firstvalue = `sqrt(${result})`;
-      }
+  pecent(state) {
+    const result =
+      state.editTarget === EditTarget.Second
+        ? state.operator === operators[0] || state.operator === operators[1]
+          ? (Number(state.result) / 100) * Number(state.firstvalue)
+          : Number(state.result) * 0.01
+        // : String(operators).includes(state.operator) && !state.editStatus
+        // ? state.operator === operators[0] || state.operator === operators[1]
+        //   ? Number(state.result) * 0.1
+        //   : Number(state.result) * 0.01
+        : 0;
+    let display = `0`;
+    if (state.editTarget === EditTarget.Second) {
+      display = `${state.firstvalue} ${state.operator} ${result}`;
+    } else if (
+      String(operators).includes(state.operator) &&
+      !state.editStatus
+    ) {
+      display = `${result}`;
     }
-
-    state.display =
-      state.editTarget === EditTarget.Second
-        ? `${firstvalue} ${state.operator} ${secondvalue}`
-        : `${firstvalue}`;
-
-    let finalResult =
-      state.editTarget === EditTarget.Second
-        ? calculate(secondvalue)
-        : calculate(firstvalue);
 
     return {
       ...state,
-      firstvalue: firstvalue,
-      secondvalue: secondvalue,
-      editStatus: EditStatus.EditFormula,
-      result: finalResult,
-    };
-  }
-  reciprocal(state, action) {
-    const result = Number(state.result);
-    let firstvalue = state.firstvalue;
-    let secondvalue = state.secondvalue;
-
-    if (state.editStatus === EditStatus.EditFormula) {
-      if (state.editTarget === EditTarget.Second) {
-        secondvalue = `recip(${state.secondvalue})`;
-      } else {
-        firstvalue = `recip(${state.firstvalue})`;
-      }
-    } else {
-      if (state.editTarget === EditTarget.Second) {
-        secondvalue = `recip(${result})`;
-      } else {
-        firstvalue = `recip(${result})`;
-      }
-    }
-
-    state.display =
-      state.editTarget === EditTarget.Second
-        ? `${firstvalue} ${state.operator} ${secondvalue}`
-        : `${firstvalue}`;
-
-    let finalResult =
-      state.editTarget === EditTarget.Second
-        ? calculate(secondvalue)
-        : calculate(firstvalue);
-
-    return {
-      ...state,
-      firstvalue: firstvalue,
-      secondvalue: secondvalue,
-      editStatus: EditStatus.EditFormula,
-      result: finalResult,
+      result: result,
+      display: display,
     };
   }
   equal(state, action) {
@@ -369,9 +300,11 @@ export default function calculateReducer(state, action) {
       return calculator.operator(state, action);
     }
 
+    if (formulaBtnMapping[action.type]) {
+      return calculator.fomulaOperator(state, formulaBtnMapping[action.type]);
+    }
+
     switch (action.type) {
-      case "+/-":
-        return calculator.negate(state, action);
       case ".":
         return calculator.dot(state, action);
       case "Del":
@@ -380,12 +313,8 @@ export default function calculateReducer(state, action) {
         return calculator.ce(state);
       case "C":
         return initialState;
-      case "x2":
-        return calculator.square(state, action);
-      case "2√x":
-        return calculator.doubleSqrt(state, action);
-      case "1/x":
-        return calculator.reciprocal(state, action);
+      case "%":
+        return calculator.pecent(state);
       case "=":
         return calculator.equal(state, action);
       default:
@@ -409,7 +338,16 @@ export default function calculateReducer(state, action) {
   }
 }
 function calculate(formula) {
+  formula = String(formula).includes("√")
+    ? String(formula).replace(/√/g, formulaFuncMapping["√"])
+    : formula;
+
+  formula = String(formula).includes("1/")
+    ? String(formula).replace(/1\//g, formulaFuncMapping["1/"])
+    : formula;
+
   let values = String(formula).split("/");
+
   formula =
     values.length === 2 ? `divide(${values[0]}, ${values[1]})` : formula;
   return parseFloat(Number(eval(String(formula)))); //.toExponential();
