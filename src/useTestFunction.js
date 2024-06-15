@@ -1282,6 +1282,14 @@ const testCases = [
       result: "0.408248290463863",
     },
   },
+  {
+    id: "2√x" + 4,
+    input: "3 2√x",
+    expected: {
+      formula: "√(3)",
+      result: "1.732050807568877",
+    },
+  },
   //test 1/x
   {
     id: "1/x" + 1,
@@ -1313,6 +1321,14 @@ const testCases = [
     expected: {
       formula: "1/(√(5))",
       result: "0.4472135954999579",
+    },
+  },
+  {
+    id: "1/x" + 5,
+    input: "5 7 1/x",
+    expected: {
+      formula: "1/(57)",
+      result: "0.0175438596491228",
     },
   },
   //test delete
@@ -1439,6 +1455,14 @@ const testCases = [
     expected: {
       formula: "2 + negate(2)",
       result: "-2",
+    },
+  },
+  {
+    id: "del" + 14,
+    input: "5 + = 2 % Del",
+    expected: {
+      formula: "",
+      result: "0.2",
     },
   },
 
@@ -1819,6 +1843,22 @@ const testCases = [
     expected: {
       formula: "0.275625 + 0.25 =",
       result: "0.525625",
+    },
+  },
+  {
+    id: "percent" + 17,
+    input: "5 + 3 = % 2 % 2",
+    expected: {
+      formula: "",
+      result: "2",
+    },
+  },
+  {
+    id: "percent" + 18,
+    input: "5 + 3 = % %",
+    expected: {
+      formula: "0.0512",
+      result: "0.0512",
     },
   },
 

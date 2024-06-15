@@ -228,10 +228,8 @@ class Calculator {
       if (isPlusOrMinus) {
         if (state.editTarget === EditTarget.Second) {
           secondvalue = (result / 100) * calculate(firstvalue);
-        } else if (state.editStatus === EditStatus.EditNumber) {
-          firstvalue = (result / 100) * state.rememberResult;
         } else {
-          firstvalue = (result / 100) * result;
+          firstvalue = (result / 100) * state.rememberResult;
         }
       } else {
         if (state.editTarget === EditTarget.Second) {
@@ -255,10 +253,7 @@ class Calculator {
       ...state,
       firstvalue: firstvalue,
       secondvalue: secondvalue,
-      editStatus:
-        state.rememberResult && state.editStatus === EditStatus.EditNumber
-          ? EditStatus.EditNumber
-          : EditStatus.EditFormula,
+      editStatus: EditStatus.EditFormula,
       result: state.editTarget === EditTarget.Second ? secondvalue : firstvalue,
       display: display,
     };
@@ -409,7 +404,20 @@ function resultLengthValidator(state) {
 }
 
 export function numberFormatter(value) {
+  // let arrResult = String(value).split(".");
+
+  // if (arrResult[1] !== undefined) {
+  //   if (String(arrResult[0]) === "0") {
+  //     value = String(parseFloat(value).toFixed(16));
+  //   } else {
+  //     if (String(value).match(/\d/g).length > 16) {
+  //       value = String(value).substring(0, 17);
+  //     }
+  //   }
+  // }
+
   let formattedValue = String(value).replace("-", "").split(".")[0].trim();
+
   if (formattedValue.match(/\d/g) && formattedValue.length > 3) {
     for (let i = formattedValue.length - 3; i > 0; i -= 3) {
       formattedValue =
@@ -421,6 +429,7 @@ export function numberFormatter(value) {
   if (String(value).startsWith("-")) {
     formattedValue = "-" + formattedValue;
   }
+
   return String(value).split(".")[1] === undefined
     ? String(formattedValue)
     : String(formattedValue + "." + String(value).split(".")[1]);
