@@ -33,6 +33,7 @@ export const initialState = {
   result: "0",
   editTarget: EditTarget.First,
   editStatus: EditStatus.EditNumber,
+  rememberResult: null,
   error: null,
   display: "",
 };
@@ -156,21 +157,23 @@ class Calculator {
     let firstvalue = state.firstvalue;
     let secondvalue = state.secondvalue;
 
+    const formula = formulaBtnMapping[action.type];
+
     if (state.editStatus === EditStatus.EditFormula) {
       if (state.editTarget === EditTarget.Second) {
-        secondvalue = `${action}(${state.secondvalue})`;
+        secondvalue = `${formula}(${state.secondvalue})`;
       } else {
-        firstvalue = `${action}(${state.firstvalue})`;
+        firstvalue = `${formula}(${state.firstvalue})`;
       }
     } else {
       if (state.editTarget === EditTarget.Second) {
-        secondvalue = `${action}(${result})`;
+        secondvalue = `${formula}(${result})`;
       } else {
-        firstvalue = `${action}(${result})`;
+        firstvalue = `${formula}(${result})`;
       }
     }
 
-    if (action === "negate") {
+    if (formula === "negate") {
       state.display =
         state.editStatus !== EditStatus.EditNumber
           ? state.editTarget === EditTarget.Second
@@ -185,12 +188,12 @@ class Calculator {
     }
 
     let finalResult;
-    if (state.editStatus === EditStatus.EditNumber && action === "negate") {
+    if (state.editStatus === EditStatus.EditNumber && formula === "negate") {
       finalResult =
         String(state.result) === "0"
           ? state.result
-          : state.result.startsWith("-")
-          ? state.result.slice(1)
+          : String(state.result).startsWith("-")
+          ? String(state.result).slice(1)
           : "-" + state.result;
     } else {
       finalResult =
@@ -202,42 +205,61 @@ class Calculator {
     return {
       ...state,
       editStatus:
-        action === "negate"
+        formula === "negate"
           ? state.editStatus
             ? state.editStatus
             : EditStatus.EditFormula
           : EditStatus.EditFormula,
       firstvalue: firstvalue,
       secondvalue: secondvalue,
-      // editStatus: EditStatus.EditFormula,
       result: finalResult,
     };
   }
 
-  pecent(state) {
-    const result =
-      state.editTarget === EditTarget.Second
-        ? state.operator === operators[0] || state.operator === operators[1]
-          ? (Number(state.result) / 100) * Number(state.firstvalue)
-          : Number(state.result) * 0.01
-        // : String(operators).includes(state.operator) && !state.editStatus
-        // ? state.operator === operators[0] || state.operator === operators[1]
-        //   ? Number(state.result) * 0.1
-        //   : Number(state.result) * 0.01
-        : 0;
-    let display = `0`;
+  percentage(state) {
+    const result = Number(state.result);
+    let firstvalue = state.firstvalue;
+    let secondvalue = state.secondvalue;
+
+    const isPlusOrMinus =
+      state.operator === operators[0] || state.operator === operators[1];
+
+    if (state.operator) {
+      if (isPlusOrMinus) {
+        if (state.editTarget === EditTarget.Second) {
+          secondvalue = (result / 100) * calculate(firstvalue);
+        } else if (state.editStatus === EditStatus.EditNumber) {
+          firstvalue = (result / 100) * state.rememberResult;
+        } else {
+          firstvalue = (result / 100) * result;
+        }
+      } else {
+        if (state.editTarget === EditTarget.Second) {
+          secondvalue = result * 0.01;
+        } else {
+          firstvalue = result * 0.01;
+        }
+      }
+    } else {
+      firstvalue = 0;
+    }
+
+    let display;
     if (state.editTarget === EditTarget.Second) {
-      display = `${state.firstvalue} ${state.operator} ${result}`;
-    } else if (
-      String(operators).includes(state.operator) &&
-      !state.editStatus
-    ) {
-      display = `${result}`;
+      display = `${firstvalue} ${state.operator} ${secondvalue}`;
+    } else {
+      display = `${firstvalue}`;
     }
 
     return {
       ...state,
-      result: result,
+      firstvalue: firstvalue,
+      secondvalue: secondvalue,
+      editStatus:
+        state.rememberResult && state.editStatus === EditStatus.EditNumber
+          ? EditStatus.EditNumber
+          : EditStatus.EditFormula,
+      result: state.editTarget === EditTarget.Second ? secondvalue : firstvalue,
       display: display,
     };
   }
@@ -267,6 +289,7 @@ class Calculator {
         state.editTarget === EditTarget.Second ? result : state.secondvalue,
       editStatus: EditStatus.NotEditting,
       result: calculateResult,
+      rememberResult: calculateResult,
       display: `${fomula} ${action.type}`,
     };
   }
@@ -301,7 +324,7 @@ export default function calculateReducer(state, action) {
     }
 
     if (formulaBtnMapping[action.type]) {
-      return calculator.fomulaOperator(state, formulaBtnMapping[action.type]);
+      return calculator.fomulaOperator(state, action);
     }
 
     switch (action.type) {
@@ -314,7 +337,7 @@ export default function calculateReducer(state, action) {
       case "C":
         return initialState;
       case "%":
-        return calculator.pecent(state);
+        return calculator.percentage(state);
       case "=":
         return calculator.equal(state, action);
       default:
@@ -338,13 +361,9 @@ export default function calculateReducer(state, action) {
   }
 }
 function calculate(formula) {
-  formula = String(formula).includes("√")
-    ? String(formula).replace(/√/g, formulaFuncMapping["√"])
-    : formula;
-
-  formula = String(formula).includes("1/")
-    ? String(formula).replace(/1\//g, formulaFuncMapping["1/"])
-    : formula;
+  formula = Object.keys(formulaFuncMapping).reduce((acc, key) => {
+    return acc.replace(new RegExp(key, "g"), formulaFuncMapping[key]);
+  }, String(formula));
 
   let values = String(formula).split("/");
 

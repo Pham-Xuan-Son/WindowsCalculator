@@ -1695,10 +1695,10 @@ const testCases = [
   },
   {
     id: "percent" + 6,
-    input: "5 + 2 %",
+    input: "5 + 2 % = =",
     expected: {
-      formula: "5 + 0.1",
-      result: "0.1",
+      formula: "5.1 + 0.1 =",
+      result: "5.2",
     },
   },
   {
@@ -1718,11 +1718,107 @@ const testCases = [
     },
   },
   {
+    id: "percent" + 7.2,
+    input: "5 + = % + % =",
+    expected: {
+      formula: "1 + 0.01 =",
+      result: "1.01",
+    },
+  },
+  {
     id: "percent" + 8,
     input: "5 + % CE = %",
     expected: {
       formula: "0.25",
       result: "0.25",
+    },
+  },
+  {
+    id: "percent" + 9,
+    input: "5 x2 + %",
+    expected: {
+      formula: "sqr(5) + 6.25",
+      result: "6.25",
+    },
+  },
+  {
+    id: "percent" + 10,
+    input: "5 + 3 = 6 %",
+    expected: {
+      formula: "0.48",
+      result: "0.48",
+    },
+  },
+  {
+    id: "percent" + 10.1,
+    input: "5 + 3 = 6 % %",
+    expected: {
+      formula: "0.0384",
+      result: "0.0384",
+    },
+  },
+  {
+    id: "percent" + 11,
+    input: "5 + 3 % 2",
+    expected: {
+      formula: "5 +",
+      result: "2",
+    },
+  },
+  {
+    id: "percent" + 11.1,
+    input: "5 + 3 % 2 %",
+    expected: {
+      formula: "5 + 0.1",
+      result: "0.1",
+    },
+  },
+  {
+    id: "percent" + 12,
+    input: "2 + 3 % +/-",
+    expected: {
+      formula: "2 + negate(0.06)",
+      result: "-0.06",
+    },
+  },
+  {
+    id: "percent" + 13,
+    input: "5 / 2√x % =",
+    expected: {
+      formula: "5 / 0.0223606797749979 =",
+      result: "223.606797749979",
+    },
+  },
+  {
+    id: "percent" + 13.1,
+    input: "5 + 2√x % =",
+    expected: {
+      formula: "5 + 0.1118033988749895 =",
+      result: "5.111803398874989",
+    },
+  },
+  {
+    id: "percent" + 14,
+    input: "6 + 4 % Del",
+    expected: {
+      formula: "6 + 0.24",
+      result: "0.24",
+    },
+  },
+  {
+    id: "percent" + 15,
+    input: "6 + % *",
+    expected: {
+      formula: "6.36 *",
+      result: "6.36",
+    },
+  },
+  {
+    id: "percent" + 16,
+    input: "5 + % = % =",
+    expected: {
+      formula: "0.275625 + 0.25 =",
+      result: "0.525625",
     },
   },
 
