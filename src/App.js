@@ -9,6 +9,7 @@ import calculateReducer, {
   numberFormatter,
   numberLengthValidator,
 } from "./CalculateReducer";
+import BigNumber from "bignumber.js";
 
 const calculate = [
   ["%", "CE", "C", "Del"],
@@ -35,7 +36,11 @@ const notDisabledBtns = [
   "Del",
   "=",
 ];
-
+let a = new BigNumber(2);
+let b = new BigNumber(123);
+let c = a.times(b);
+let x = new BigNumber(123.4567);
+console.log("number", c.toExponential().toString());
 function App() {
   const [formula, dispatch] = useReducer(calculateReducer, initialState);
 
@@ -66,7 +71,7 @@ function App() {
         </div>
         <div style={{ marginBottom: "5px" }}>
           <InputField
-            values={numberLengthValidator(numberFormatter(formula.result))}
+            values={numberFormatter(numberLengthValidator(formula.result))}
           />
         </div>
         <div>

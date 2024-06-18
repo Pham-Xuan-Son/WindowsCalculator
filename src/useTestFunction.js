@@ -38,9 +38,7 @@ const useTestFunction = (dispatch, formula) => {
     if (currentTestCase) {
       setTest((prev) => (prev.length > 0 ? prev.slice(1) : prev));
       setCurrentTestCase(null);
-      let formattedValue = numberLengthValidator(
-        numberFormatter(String(formula.result))
-      );
+      let formattedValue = numberFormatter(numberLengthValidator(String(formula.result)));
 
       const debugId = "negate26.1";
 
@@ -73,7 +71,7 @@ const useTestFunction = (dispatch, formula) => {
             id: currentTestCase.id,
             passed: true,
             input: currentTestCase.input,
-            result: String(formula.result),
+            result: formattedValue,
             formula: formula.display,
             expectedResult: String(currentTestCase.expected.result),
             expectedFormula: currentTestCase.expected.formula,
@@ -86,7 +84,7 @@ const useTestFunction = (dispatch, formula) => {
             id: currentTestCase.id,
             passed: false,
             input: currentTestCase.input,
-            result: String(formula.result),
+            result: formattedValue,
             formula: formula.display,
             expectedResult: String(currentTestCase.expected.result),
             expectedFormula: currentTestCase.expected.formula,

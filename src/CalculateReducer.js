@@ -355,6 +355,7 @@ export default function calculateReducer(state, action) {
     };
   }
 }
+
 function calculate(formula) {
   formula = Object.keys(formulaFuncMapping).reduce((acc, key) => {
     return acc.replace(new RegExp(key, "g"), formulaFuncMapping[key]);
@@ -396,53 +397,32 @@ function recip(value) {
   return divide(1, value);
 }
 
+function getMaxLength(result) {
+  return String(result).replace("-", "").trim().startsWith("0") ? 17 : 16;
+}
+
 function resultLengthValidator(state) {
   const lengthOfResult = String(state.result).match(/\d/g).length;
-  return String(state.result).replace("-", "").trim().startsWith("0")
-    ? lengthOfResult > 16
-    : lengthOfResult > 15;
+  return lengthOfResult >= getMaxLength(state.result);
+}
+
+function roundTo(num, decimalPlaces) {
+  const factor = Math.pow(10, decimalPlaces);
+  return Math.round(num * factor) / factor;
 }
 
 export function numberLengthValidator(value) {
-  // let arrResult = String(value).split(".");
-
-  // if (arrResult[1] !== undefined) {
-  //   if (String(arrResult[0]).replace("-", "") === "0") {
-  //     if (arrResult[1].length > 15) {
-  //       let lastNumber = String(arrResult[1]).substring(14, 16).split("");
-  //       return `${arrResult[0]}.${String(arrResult[1]).substring(0, 14)}${
-  //         Number(lastNumber[1]) >= 5
-  //           ? Math.ceil(`${lastNumber[0]}.${lastNumber[1]}`)
-  //           : Math.floor(`${lastNumber[0]}.${lastNumber[1]}`)
-  //       }`;
-  //     }
-  //   }
-  // }
-  // return value;
-
-  let arrResult = String(value).split(".");
-
-  const mathFuc = (value, math, number) => {
-    return String(value).substring(0, 16).concat(math(number));
-  };
-  const conditionFuc = (value) => {
-    let number = String(value).slice(-2).split("");
-    if (number[1] >= 5) {
-      return mathFuc(value, Math.ceil, `${number[0]}.${number[1]}`);
-    }
-    return mathFuc(value, Math.floor, `${number[0]}.${number[1]}`);
-  };
-
-  if (arrResult[1] !== undefined) {
-    if (String(arrResult[0]) === "0") {
-      return String(value).substring(0, 18);
-    } else {
-      if (String(value).match(/\d/g).length > 15) {
-        return conditionFuc(value);
-      }
-    }
+  const [integer, decimal] = String(value).split(".");
+  if (!decimal) {
+    return value;
   }
-  return value;
+  const intLength = integer.match(/\d/g).length;
+  const decimalLength = decimal.match(/\d/g).length;
+  if (intLength + decimalLength <= getMaxLength(value)) {
+    return value;
+  }
+  const maxDecimalLength = getMaxLength(value) - intLength;
+  return roundTo(value, maxDecimalLength);
 }
 
 export function numberFormatter(value) {
