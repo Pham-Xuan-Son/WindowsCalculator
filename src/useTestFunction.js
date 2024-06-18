@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { numberFormatter } from "./CalculateReducer";
+import { numberFormatter, numberLengthValidator } from "./CalculateReducer";
 
 // This is to avoid the error "Maximum update depth exceeded" displayed in the console
 const originalConsoleError = console.error;
@@ -38,7 +38,9 @@ const useTestFunction = (dispatch, formula) => {
     if (currentTestCase) {
       setTest((prev) => (prev.length > 0 ? prev.slice(1) : prev));
       setCurrentTestCase(null);
-      let formattedValue = numberFormatter(String(formula.result));
+      let formattedValue = numberLengthValidator(
+        numberFormatter(String(formula.result))
+      );
 
       const debugId = "negate26.1";
 
@@ -73,7 +75,7 @@ const useTestFunction = (dispatch, formula) => {
             input: currentTestCase.input,
             result: String(formula.result),
             formula: formula.display,
-            expectedResult: currentTestCase.expected.result,
+            expectedResult: String(currentTestCase.expected.result),
             expectedFormula: currentTestCase.expected.formula,
           },
         ]);
@@ -86,7 +88,7 @@ const useTestFunction = (dispatch, formula) => {
             input: currentTestCase.input,
             result: String(formula.result),
             formula: formula.display,
-            expectedResult: currentTestCase.expected.result,
+            expectedResult: String(currentTestCase.expected.result),
             expectedFormula: currentTestCase.expected.formula,
           },
         ]);

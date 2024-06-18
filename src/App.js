@@ -7,6 +7,7 @@ import useTestFunction from "./useTestFunction";
 import calculateReducer, {
   initialState,
   numberFormatter,
+  numberLengthValidator,
 } from "./CalculateReducer";
 
 const calculate = [
@@ -64,7 +65,9 @@ function App() {
           <InputField values={formula.display} />
         </div>
         <div style={{ marginBottom: "5px" }}>
-          <InputField values={numberFormatter(formula.result)} />
+          <InputField
+            values={numberLengthValidator(numberFormatter(formula.result))}
+          />
         </div>
         <div>
           <MemoButton dispatch={dispatch} error={error} />
@@ -173,7 +176,9 @@ function TestChanges({ testStatus }) {
 
   useEffect(() => {
     if (!hasCompared.current) {
-      const previousTestStatus = JSON.parse(sessionStorage.getItem("testStatus"));
+      const previousTestStatus = JSON.parse(
+        sessionStorage.getItem("testStatus")
+      );
 
       if (previousTestStatus && Array.isArray(previousTestStatus)) {
         const changes = {};
@@ -209,7 +214,7 @@ function TestChanges({ testStatus }) {
         setChanges(changes);
         hasCompared.current = true;
       }
-  
+
       sessionStorage.setItem("testStatus", JSON.stringify(testStatus));
     }
   }, [testStatus]);
@@ -243,33 +248,75 @@ function TestChanges({ testStatus }) {
               }}
             >
               {status.old ? (
-                <p style={{marginTop: 0, marginBottom: "5px"}}>
-                Test ID: {status.id} =&nbsp;{status.old ? <span style={{color: status.old.passed ? "lightgreen" : "red"}}> {status.old.passed ? "Passed" : "Failed"} </span> : ""} &nbsp;{"=>"}&nbsp; <span style={{color: status.new.passed ? "lightgreen" : "red"}}> {status.new.passed ? "Passed" : "Failed"} </span> {` | Input = [${status.input}]`}
-                <br/>- Result:&nbsp;<span style={{color: status.old.passed ? "lightgreen" : "red"}}>{`[${status.old? status.old.result : ""}]`}</span>&nbsp;{"=>"}&nbsp;<span style={{color: status.new.passed ? "lightgreen" : "red"}}>{`[${status.new.result}]`}</span>
-                {/* <br/>- Formula: old =&nbsp;{`[${status.old? status.old.formula : ""}]`} ; new =&nbsp;{`[${status.new.formula}]`} */}
-                <br/>- Formula:&nbsp;<span style={{color: status.old.passed ? "lightgreen" : "red"}}>{`[${status.old? status.old.formula : ""}]`}</span>&nbsp;{"=>"}&nbsp;<span style={{color: status.new.passed ? "lightgreen" : "red"}}>{`[${status.new.formula}]`}</span>
-                <br/>- Expected: Result =&nbsp;{`[${status.expected.result}]`} ; Formula =&nbsp;{`[${status.expected.formula}]`}</p>
+                <p style={{ marginTop: 0, marginBottom: "5px" }}>
+                  Test ID: {status.id} =&nbsp;
+                  {status.old ? (
+                    <span
+                      style={{
+                        color: status.old.passed ? "lightgreen" : "red",
+                      }}
+                    >
+                      {" "}
+                      {status.old.passed ? "Passed" : "Failed"}{" "}
+                    </span>
+                  ) : (
+                    ""
+                  )}{" "}
+                  &nbsp;{"=>"}&nbsp;{" "}
+                  <span
+                    style={{ color: status.new.passed ? "lightgreen" : "red" }}
+                  >
+                    {" "}
+                    {status.new.passed ? "Passed" : "Failed"}{" "}
+                  </span>{" "}
+                  {` | Input = [${status.input}]`}
+                  <br />- Result:&nbsp;
+                  <span
+                    style={{ color: status.old.passed ? "lightgreen" : "red" }}
+                  >{`[${status.old ? status.old.result : ""}]`}</span>
+                  &nbsp;{"=>"}&nbsp;
+                  <span
+                    style={{ color: status.new.passed ? "lightgreen" : "red" }}
+                  >{`[${status.new.result}]`}</span>
+                  {/* <br/>- Formula: old =&nbsp;{`[${status.old? status.old.formula : ""}]`} ; new =&nbsp;{`[${status.new.formula}]`} */}
+                  <br />- Formula:&nbsp;
+                  <span
+                    style={{ color: status.old.passed ? "lightgreen" : "red" }}
+                  >{`[${status.old ? status.old.formula : ""}]`}</span>
+                  &nbsp;{"=>"}&nbsp;
+                  <span
+                    style={{ color: status.new.passed ? "lightgreen" : "red" }}
+                  >{`[${status.new.formula}]`}</span>
+                  <br />- Expected: Result =&nbsp;
+                  {`[${status.expected.result}]`} ; Formula =&nbsp;
+                  {`[${status.expected.formula}]`}
+                </p>
               ) : (
                 <p style={{ marginTop: 0, marginBottom: "5px" }}>
                   New Test ID: {status.id} =&nbsp;
-                  <span style={{ color: status.new.passed ? "lightgreen" : "red" }}>
+                  <span
+                    style={{ color: status.new.passed ? "lightgreen" : "red" }}
+                  >
                     {" "}
                     {status.new.passed ? "Passed" : "Failed"}{" "}
                   </span>{" "}
                   | Input = [{status.input}]
                   <br />- Result:&nbsp;
-                  <span style={{ color: status.new.passed ? "lightgreen" : "red" }}>
+                  <span
+                    style={{ color: status.new.passed ? "lightgreen" : "red" }}
+                  >
                     {`[${status.new.result}]`}
                   </span>
                   <br />- Formula:&nbsp;
-                  <span style={{ color: status.new.passed ? "lightgreen" : "red" }}>
-                    </span> 
-                    {`[${status.new.formula}]`}
+                  <span
+                    style={{ color: status.new.passed ? "lightgreen" : "red" }}
+                  ></span>
+                  {`[${status.new.formula}]`}
                   <br />- Expected: Result =&nbsp;
                   {`[${status.expected.result}]`} ; Formula =&nbsp;
                   {`[${status.expected.formula}]`}
                 </p>
-              )}              
+              )}
             </div>
           ))}
         </div>
@@ -304,7 +351,7 @@ function isStrictMode() {
   try {
     // In strict mode, `this` in a function (not a method) is `undefined`.
     // In non-strict mode, `this` is the global object (`window` in browsers).
-    (function() {
+    (function () {
       return !this;
     })();
     return false; // If no error is thrown, strict mode is not enabled

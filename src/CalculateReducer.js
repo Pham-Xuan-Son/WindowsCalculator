@@ -403,19 +403,49 @@ function resultLengthValidator(state) {
     : lengthOfResult > 15;
 }
 
-export function numberFormatter(value) {
+export function numberLengthValidator(value) {
   // let arrResult = String(value).split(".");
 
   // if (arrResult[1] !== undefined) {
-  //   if (String(arrResult[0]) === "0") {
-  //     value = String(parseFloat(value).toFixed(16));
-  //   } else {
-  //     if (String(value).match(/\d/g).length > 16) {
-  //       value = String(value).substring(0, 17);
+  //   if (String(arrResult[0]).replace("-", "") === "0") {
+  //     if (arrResult[1].length > 15) {
+  //       let lastNumber = String(arrResult[1]).substring(14, 16).split("");
+  //       return `${arrResult[0]}.${String(arrResult[1]).substring(0, 14)}${
+  //         Number(lastNumber[1]) >= 5
+  //           ? Math.ceil(`${lastNumber[0]}.${lastNumber[1]}`)
+  //           : Math.floor(`${lastNumber[0]}.${lastNumber[1]}`)
+  //       }`;
   //     }
   //   }
   // }
+  // return value;
 
+  let arrResult = String(value).split(".");
+
+  const mathFuc = (value, math, number) => {
+    return String(value).substring(0, 16).concat(math(number));
+  };
+  const conditionFuc = (value) => {
+    let number = String(value).slice(-2).split("");
+    if (number[1] >= 5) {
+      return mathFuc(value, Math.ceil, `${number[0]}.${number[1]}`);
+    }
+    return mathFuc(value, Math.floor, `${number[0]}.${number[1]}`);
+  };
+
+  if (arrResult[1] !== undefined) {
+    if (String(arrResult[0]) === "0") {
+      return String(value).substring(0, 18);
+    } else {
+      if (String(value).match(/\d/g).length > 15) {
+        return conditionFuc(value);
+      }
+    }
+  }
+  return value;
+}
+
+export function numberFormatter(value) {
   let formattedValue = String(value).replace("-", "").split(".")[0].trim();
 
   if (formattedValue.match(/\d/g) && formattedValue.length > 3) {
