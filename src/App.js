@@ -8,6 +8,7 @@ import calculateReducer, {
   initialState,
   numberFormatter,
   numberLengthValidator,
+  displayFormatter,
 } from "./CalculateReducer";
 import BigNumber from "bignumber.js";
 
@@ -36,11 +37,11 @@ const notDisabledBtns = [
   "Del",
   "=",
 ];
-let a = new BigNumber(2);
+let a = new BigNumber(1234567891234567);
 let b = new BigNumber(123);
-let c = a.times(b);
+let c = a.multipliedBy(b);
 let x = new BigNumber(123.4567);
-console.log("number", c.toExponential().toString());
+console.log("number", c.toExponential(15));
 function App() {
   const [formula, dispatch] = useReducer(calculateReducer, initialState);
 
@@ -49,7 +50,6 @@ function App() {
   const error = useMemo(() => {
     return formula.error;
   }, [formula.error]);
-
   return (
     <div
       className="App"
@@ -67,7 +67,7 @@ function App() {
           <h4>Calculator</h4>
         </div>
         <div>
-          <InputField values={formula.display} />
+          <InputField values={displayFormatter(formula.display)} />
         </div>
         <div style={{ marginBottom: "5px" }}>
           <InputField

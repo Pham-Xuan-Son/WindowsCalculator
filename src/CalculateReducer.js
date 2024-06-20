@@ -1,3 +1,5 @@
+import BigNumber from "bignumber.js";
+
 const EditTarget = {
   None: 0,
   First: 1,
@@ -217,7 +219,7 @@ class Calculator {
   }
 
   percentage(state) {
-    const result = Number(state.result);
+    const result = new BigNumber(Number(state.result));
     let firstvalue = state.firstvalue;
     let secondvalue = state.secondvalue;
 
@@ -227,15 +229,17 @@ class Calculator {
     if (state.operator) {
       if (isPlusOrMinus) {
         if (state.editTarget === EditTarget.Second) {
-          secondvalue = (result / 100) * calculate(firstvalue);
+          secondvalue = result
+            .dividedBy(100)
+            .multipliedBy(calculate(firstvalue));
         } else {
-          firstvalue = (result / 100) * state.rememberResult;
+          firstvalue = result.dividedBy(100).multipliedBy(state.rememberResult);
         }
       } else {
         if (state.editTarget === EditTarget.Second) {
-          secondvalue = result * 0.01;
+          secondvalue = result.multipliedBy(0.01);
         } else {
-          firstvalue = result * 0.01;
+          firstvalue = result.multipliedBy(0.01);
         }
       }
     } else {
@@ -361,21 +365,47 @@ function calculate(formula) {
     return acc.replace(new RegExp(key, "g"), formulaFuncMapping[key]);
   }, String(formula));
 
-  let values = String(formula).split("/");
+  const splitFormula = formula.split(" ");
+  const firstvalue = new BigNumber(eval(splitFormula[0]));
+  const operator = splitFormula[1];
+  const secondvalue = new BigNumber(eval(splitFormula[2]));
 
-  formula =
-    values.length === 2 ? `divide(${values[0]}, ${values[1]})` : formula;
-  return parseFloat(Number(eval(String(formula)))); //.toExponential();
+  let result = firstvalue;
+
+  if (splitFormula[1] !== undefined) {
+    if (String(operator) === "+") {
+      result = firstvalue.plus(secondvalue);
+    } else if (String(operator) === "-") {
+      result = firstvalue.minus(secondvalue);
+    } else if (String(operator) === "*") {
+      result = firstvalue.multipliedBy(secondvalue);
+    } else if (String(operator) === "/") {
+      result = divide(firstvalue, secondvalue);
+    }
+  }
+
+  return result;
+}
+
+function isNaNResult(result) {
+  if (!isNaN(result)) {
+    if (String(result).length > getMaxLength(result) + 1) {
+      result = result.toExponential(15);
+    }
+  }
+  return result;
 }
 
 function divide(a, b) {
-  if (Number(b) === 0) {
-    if (Number(a) === 0) {
+  const bigA = new BigNumber(a);
+  const bigB = new BigNumber(b);
+  if (bigB.isEqualTo(0)) {
+    if (bigA.isEqualTo(0)) {
       throw "Result is undefined";
     }
     throw "Cannot divide by zero";
   }
-  return a / b;
+  return bigA.dividedBy(bigB);
 }
 
 function negate(value) {
@@ -383,18 +413,21 @@ function negate(value) {
 }
 
 function sqr(value) {
-  return value * value;
+  const bigValue = new BigNumber(value);
+  return bigValue.multipliedBy(bigValue);
 }
 
 function sqrt(value) {
-  if (value < 0) {
+  const bigValue = new BigNumber(value);
+  if (bigValue.isLessThan(0)) {
     throw "Invalid input";
   }
-  return Math.sqrt(value);
+  return bigValue.sqrt();
 }
 
 function recip(value) {
-  return divide(1, value);
+  const bigValue = new BigNumber(value);
+  return divide(1, bigValue.toString());
 }
 
 function getMaxLength(result) {
@@ -407,8 +440,9 @@ function resultLengthValidator(state) {
 }
 
 function roundTo(num, decimalPlaces) {
+  const number = new BigNumber(num);
   const factor = Math.pow(10, decimalPlaces);
-  return Math.round(num * factor) / factor;
+  return Math.round(number.multipliedBy(factor)) / factor;
 }
 
 export function numberLengthValidator(value) {
@@ -443,4 +477,37 @@ export function numberFormatter(value) {
   return String(value).split(".")[1] === undefined
     ? String(formattedValue)
     : String(formattedValue + "." + String(value).split(".")[1]);
+}
+
+export function displayFormatter(value) {
+  if (String(value) === "") {
+    return value;
+  }
+  const displayValue = String(value).split(" ");
+  const isFormula = (string) => !isNaN(string);
+  const firstvalue = isFormula(displayValue[0])
+    ? numberLengthValidator(displayValue[0])
+    : value;
+  const operator = isFormula(displayValue[0])
+    ? `${numberLengthValidator(displayValue[0])} ${displayValue[1]}`
+    : value;
+  const secondvalue = `${
+    isFormula(displayValue[0])
+      ? numberLengthValidator(displayValue[0])
+      : displayValue[0]
+  } ${displayValue[1]} ${
+    isFormula(displayValue[2])
+      ? numberLengthValidator(displayValue[2])
+      : displayValue[2]
+  }`;
+  const otherValue = displayValue[3] !== undefined ? displayValue[3] : "";
+
+  if (displayValue[1] === undefined) {
+    return firstvalue;
+  } else if (displayValue[2] === undefined) {
+    return operator;
+  } else if (displayValue[3] === undefined) {
+    return secondvalue;
+  }
+  return `${secondvalue} ${otherValue}`;
 }

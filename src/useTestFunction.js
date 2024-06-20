@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { numberFormatter, numberLengthValidator } from "./CalculateReducer";
+import {
+  numberFormatter,
+  numberLengthValidator,
+  displayFormatter,
+} from "./CalculateReducer";
 
 // This is to avoid the error "Maximum update depth exceeded" displayed in the console
 const originalConsoleError = console.error;
@@ -38,7 +42,10 @@ const useTestFunction = (dispatch, formula) => {
     if (currentTestCase) {
       setTest((prev) => (prev.length > 0 ? prev.slice(1) : prev));
       setCurrentTestCase(null);
-      let formattedValue = numberFormatter(numberLengthValidator(String(formula.result)));
+      let formattedValue = numberFormatter(
+        numberLengthValidator(String(formula.result))
+      );
+      let formattedDisplay = displayFormatter(String(formula.display));
 
       const debugId = "negate26.1";
 
@@ -63,7 +70,7 @@ const useTestFunction = (dispatch, formula) => {
       }
       if (
         String(formattedValue) === String(currentTestCase.expected.result) &&
-        String(formula.display) === String(currentTestCase.expected.formula)
+        String(formattedDisplay) === String(currentTestCase.expected.formula)
       ) {
         setTestStatus((prev) => [
           ...prev,
@@ -72,7 +79,7 @@ const useTestFunction = (dispatch, formula) => {
             passed: true,
             input: currentTestCase.input,
             result: formattedValue,
-            formula: formula.display,
+            formula: formattedDisplay,
             expectedResult: String(currentTestCase.expected.result),
             expectedFormula: currentTestCase.expected.formula,
           },
@@ -85,7 +92,7 @@ const useTestFunction = (dispatch, formula) => {
             passed: false,
             input: currentTestCase.input,
             result: formattedValue,
-            formula: formula.display,
+            formula: formattedDisplay,
             expectedResult: String(currentTestCase.expected.result),
             expectedFormula: currentTestCase.expected.formula,
           },
