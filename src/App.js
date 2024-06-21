@@ -44,7 +44,7 @@ let x = new BigNumber("11111111111111");
 let y = x.multipliedBy("5723507230632470698734963476");
 let z = y.dividedBy("5723507230632470698734963476");
 
-("1.22 / 0.3 =");
+// ("1.22 / 0.3 =");
 
 let first = {
   numerator: 122,
