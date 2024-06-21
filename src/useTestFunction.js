@@ -538,7 +538,14 @@ const testCases = [
       result: "Result is undefined",
     },
   },
-
+  {
+    id: "op" + 32,
+    input: "1 / 3 * 1 0 0 0 - 3 3 3 =",
+    expected: {
+      formula: "333.3333333333333 - 333 =",
+      result: "0.3333333333333333",
+    },
+  },
   //test dot
   {
     id: "dot" + 1,
@@ -1295,6 +1302,14 @@ const testCases = [
     expected: {
       formula: "√(3)",
       result: "1.732050807568877",
+    },
+  },
+  {
+    id: "2√x" + 5,
+    input: "6 2√x = x2 = 2√x",
+    expected: {
+      formula: "√(6)",
+      result: "2.449489742783178",
     },
   },
   //test 1/x

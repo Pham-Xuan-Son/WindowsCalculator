@@ -28,6 +28,8 @@ const formulaFuncMapping = {
 
 const operators = ["+", "-", "*", "/"];
 
+const PrecisionLength = 16;
+
 export const initialState = {
   firstvalue: null,
   secondvalue: null,
@@ -409,7 +411,8 @@ function divide(a, b) {
 }
 
 function negate(value) {
-  return -value;
+  const negate = new BigNumber(value);
+  return negate.multipliedBy(-1);
 }
 
 function sqr(value) {
@@ -431,7 +434,7 @@ function recip(value) {
 }
 
 function getMaxLength(result) {
-  return String(result).replace("-", "").trim().startsWith("0") ? 17 : 16;
+  return String(result).replace("-", "").trim().startsWith("0") ? PrecisionLength + 1 : PrecisionLength;
 }
 
 function resultLengthValidator(state) {
@@ -439,24 +442,19 @@ function resultLengthValidator(state) {
   return lengthOfResult >= getMaxLength(state.result);
 }
 
-function roundTo(num, decimalPlaces) {
+function roundTo(num) {
   const number = new BigNumber(num);
-  const factor = Math.pow(10, decimalPlaces);
-  return Math.round(number.multipliedBy(factor)) / factor;
+  return number.precision(PrecisionLength);
 }
 
 export function numberLengthValidator(value) {
-  const [integer, decimal] = String(value).split(".");
-  if (!decimal) {
+  if (isNaN(value)) {
     return value;
   }
-  const intLength = integer.match(/\d/g).length;
-  const decimalLength = decimal.match(/\d/g).length;
-  if (intLength + decimalLength <= getMaxLength(value)) {
+  if (String(value).endsWith(".")) {
     return value;
   }
-  const maxDecimalLength = getMaxLength(value) - intLength;
-  return roundTo(value, maxDecimalLength);
+  return roundTo(value);
 }
 
 export function numberFormatter(value) {
