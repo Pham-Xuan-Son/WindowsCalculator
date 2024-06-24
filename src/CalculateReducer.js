@@ -1,4 +1,6 @@
 import BigNumber from "bignumber.js";
+import Fraction from "fraction.js";
+import { string } from "mathjs";
 
 const EditTarget = {
   None: 0,
@@ -26,13 +28,28 @@ const formulaFuncMapping = {
   "1/": "recip",
 };
 
+const firstvalueObj = {
+  numerator: 0,
+  denominator: 1,
+};
+
+const secondvalueObj = {
+  numerator: 0,
+  denominator: 1,
+};
+
+const resultObj = {
+  numerator: 0,
+  denominator: 1,
+};
+
 const operators = ["+", "-", "*", "/"];
 
 const PrecisionLength = 16;
 
 export const initialState = {
-  firstvalue: null,
-  secondvalue: null,
+  firstvalue: firstvalueObj,
+  secondvalue: secondvalueObj,
   operator: null,
   result: "0",
   editTarget: EditTarget.First,
@@ -60,14 +77,14 @@ class Calculator {
       result: number,
       display:
         state.editTarget === EditTarget.Second
-          ? `${state.firstvalue} ${state.operator}`
+          ? `${valueToNumber(state.firstvalue)} ${state.operator}`
           : state.operator
           ? ""
           : state.display,
     };
   }
   operator(state, action) {
-    const validationResult = Number(state.result);
+    const validationResult = new BigNumber(state.result);
 
     const shouldCalculate =
       state.operator &&
@@ -75,24 +92,27 @@ class Calculator {
       state.editTarget === EditTarget.Second;
 
     const calculateResult = shouldCalculate
-      ? calculate(`${state.firstvalue} ${state.operator} ${validationResult}`)
+      ? calculate(
+          `${valueToNumber(state.firstvalue)} ${
+            state.operator
+          } ${validationResult}`
+        )
       : validationResult;
 
     const firstvalue =
       state.editStatus === EditStatus.EditFormula &&
       state.editTarget === EditTarget.First
-        ? state.firstvalue
+        ? valueToNumber(state.firstvalue)
         : state.editTarget === EditTarget.Second &&
           state.editStatus === EditStatus.NotEditting
-        ? state.firstvalue
+        ? valueToNumber(state.firstvalue)
         : calculateResult;
-
     return {
       ...state,
       operator: action.type,
       editTarget: EditTarget.Second,
       editStatus: EditStatus.NotEditting,
-      firstvalue: firstvalue,
+      firstvalue: valueObj(firstvalue),
       result: calculateResult,
       display: `${firstvalue} ${action.type}`,
     };
@@ -114,18 +134,18 @@ class Calculator {
       result: result,
       display:
         state.editTarget === EditTarget.Second
-          ? `${state.firstvalue} ${state.operator}`
+          ? `${valueToNumber(state.firstvalue)} ${state.operator}`
           : state.operator
           ? ""
           : state.display,
     };
   }
   del(state) {
-    let result = state.result;
+    let result = new BigNumber(state.result);
     if (state.editStatus === EditStatus.EditNumber) {
       const minLength = String(result).startsWith("-") ? 2 : 1;
-      if (result.length > minLength) {
-        result = result.slice(0, -1);
+      if (result.toString().length > minLength) {
+        result = result.toString().slice(0, -1);
         if (String(result) === "-0") {
           result = "0";
         }
@@ -150,14 +170,14 @@ class Calculator {
       result: "0",
       display:
         state.editTarget === EditTarget.Second
-          ? `${state.firstvalue} ${state.operator}`
+          ? `${valueToNumber(state.firstvalue)} ${state.operator}`
           : state.operator
           ? ""
           : state.display,
     };
   }
   fomulaOperator(state, action) {
-    const result = Number(state.result);
+    const result = new BigNumber(state.result);
     let firstvalue = state.firstvalue;
     let secondvalue = state.secondvalue;
 
@@ -214,16 +234,22 @@ class Calculator {
             ? state.editStatus
             : EditStatus.EditFormula
           : EditStatus.EditFormula,
-      firstvalue: firstvalue,
-      secondvalue: secondvalue,
+      firstvalue: valueObj(firstvalue),
+      secondvalue: valueObj(secondvalue),
       result: finalResult,
     };
   }
 
   percentage(state) {
-    const result = new BigNumber(Number(state.result));
-    let firstvalue = state.firstvalue;
-    let secondvalue = state.secondvalue;
+    const result = new BigNumber(state.result);
+    let firstvalue = new Fraction(
+      state.firstvalue.numerator,
+      state.firstvalue.denominator
+    );
+    let secondvalue = new Fraction(
+      state.secondvalue.numerator,
+      state.secondvalue.denominator
+    );
 
     const isPlusOrMinus =
       state.operator === operators[0] || state.operator === operators[1];
@@ -231,28 +257,28 @@ class Calculator {
     if (state.operator) {
       if (isPlusOrMinus) {
         if (state.editTarget === EditTarget.Second) {
-          secondvalue = result
-            .dividedBy(100)
-            .multipliedBy(calculate(firstvalue));
+          secondvalue = result.div(100).mul(firstvalue);
         } else {
-          firstvalue = result.dividedBy(100).multipliedBy(state.rememberResult);
+          firstvalue = result.div(100).mul(state.rememberResult);
         }
       } else {
         if (state.editTarget === EditTarget.Second) {
-          secondvalue = result.multipliedBy(0.01);
+          secondvalue = result.mul(0.01);
         } else {
-          firstvalue = result.multipliedBy(0.01);
+          firstvalue = result.mul(0.01);
         }
       }
     } else {
-      firstvalue = 0;
+      firstvalue = firstvalueObj;
     }
 
     let display;
     if (state.editTarget === EditTarget.Second) {
-      display = `${firstvalue} ${state.operator} ${secondvalue}`;
+      display = `${valueToNumber(firstvalue)} ${state.operator} ${valueToNumber(
+        secondvalue
+      )}`;
     } else {
-      display = `${firstvalue}`;
+      display = `${valueToNumber(firstvalue)}`;
     }
 
     return {
@@ -265,19 +291,25 @@ class Calculator {
     };
   }
   equal(state, action) {
-    const result = Number(state.result);
+    const result = new BigNumber(state.result);
 
     let fomula = result;
     if (state.operator !== null) {
       if (state.editStatus === EditStatus.EditFormula) {
-        fomula = `${state.firstvalue} ${state.operator} ${state.secondvalue}`;
+        fomula = `${valueToNumber(state.firstvalue)} ${
+          state.operator
+        } ${valueToNumber(state.secondvalue)}`;
       } else if (state.editTarget === EditTarget.Second) {
-        fomula = `${state.firstvalue} ${state.operator} ${result}`;
+        fomula = `${valueToNumber(state.firstvalue)} ${
+          state.operator
+        } ${result}`;
       } else {
-        fomula = `${result} ${state.operator} ${state.secondvalue}`;
+        fomula = `${result} ${state.operator} ${valueToNumber(
+          state.secondvalue
+        )}`;
       }
     } else if (state.editStatus === EditStatus.EditFormula) {
-      fomula = `${state.firstvalue}`;
+      fomula = `${valueToNumber(state.firstvalue)}`;
     }
 
     const calculateResult = calculate(fomula);
@@ -285,9 +317,11 @@ class Calculator {
     return {
       ...state,
       editTarget: EditTarget.First,
-      firstvalue: result,
+      firstvalue: valueObj(result),
       secondvalue:
-        state.editTarget === EditTarget.Second ? result : state.secondvalue,
+        state.editTarget === EditTarget.Second
+          ? valueObj(result)
+          : state.secondvalue,
       editStatus: EditStatus.NotEditting,
       result: calculateResult,
       rememberResult: calculateResult,
@@ -346,11 +380,13 @@ export default function calculateReducer(state, action) {
     }
   } catch (e) {
     let display = state.display;
+    let firstvalue = valueToNumber(state.firstvalue);
+    let secondvalue = valueToNumber(state.secondvalue);
     if (operators.includes(action.type)) {
       if (state.editStatus === EditStatus.EditFormula) {
-        display = `${state.firstvalue} ${state.operator} ${state.secondvalue} ${action.type}`;
+        display = `${firstvalue} ${state.operator} ${secondvalue} ${action.type}`;
       } else {
-        display = `${state.firstvalue} ${state.operator} ${state.result} ${action.type}`;
+        display = `${firstvalue} ${state.operator} ${state.result} ${action.type}`;
       }
     }
     return {
@@ -368,21 +404,26 @@ function calculate(formula) {
   }, String(formula));
 
   const splitFormula = formula.split(" ");
-  const firstvalue = new BigNumber(eval(splitFormula[0]));
+  const firstvalueObj = valueObj(splitFormula[0]);
+  const { numerator, denominator } = firstvalueObj;
+  const first = new Fraction(numerator, denominator);
   const operator = splitFormula[1];
-  const secondvalue = new BigNumber(eval(splitFormula[2]));
-
-  let result = firstvalue;
-
-  if (splitFormula[1] !== undefined) {
-    if (String(operator) === "+") {
-      result = firstvalue.plus(secondvalue);
-    } else if (String(operator) === "-") {
-      result = firstvalue.minus(secondvalue);
-    } else if (String(operator) === "*") {
-      result = firstvalue.multipliedBy(secondvalue);
-    } else if (String(operator) === "/") {
-      result = divide(firstvalue, secondvalue);
+  const secondvalueObj = valueObj(splitFormula[2]);
+  let second;
+  if (secondvalueObj) {
+    const { numerator, denominator } = secondvalueObj;
+    second = new Fraction(numerator, denominator);
+  }
+  let result = first;
+  if (operator) {
+    if (string(operator) === "+") {
+      result = first.add(second);
+    } else if (string(operator) === "-") {
+      result = first.sub(second);
+    } else if (string(operator) === "*") {
+      result = first.mul(second);
+    } else if (string(operator) === "/") {
+      result = first.div(second);
     }
   }
 
@@ -434,7 +475,9 @@ function recip(value) {
 }
 
 function getMaxLength(result) {
-  return String(result).replace("-", "").trim().startsWith("0") ? PrecisionLength + 1 : PrecisionLength;
+  return String(result).replace("-", "").trim().startsWith("0")
+    ? PrecisionLength + 1
+    : PrecisionLength;
 }
 
 function resultLengthValidator(state) {
@@ -508,4 +551,38 @@ export function displayFormatter(value) {
     return secondvalue;
   }
   return `${secondvalue} ${otherValue}`;
+}
+
+function decimalLengthValidator(value) {
+  if (isNaN(value)) {
+    return value;
+  }
+  const bigValue = new BigNumber(value);
+  if (String(bigValue).includes(".")) {
+    return String(bigValue).split(".")[1].length + 1;
+  }
+  return 1;
+}
+
+function valueObj(value) {
+  if (!value) {
+    return;
+  }
+  // if (isNaN(value)) {
+  //   return;
+  // }
+  const bigValue = new BigNumber(value);
+  const decimalLength = decimalLengthValidator(bigValue);
+  const number = String(bigValue).match(/\d/g).join("");
+
+  const denominator = String(1).padEnd(decimalLength, "0");
+
+  return { numerator: number, denominator: denominator };
+}
+
+function valueToNumber(value) {
+  const { numerator, denominator } = value;
+  const num = new BigNumber(numerator);
+  const denom = new BigNumber(denominator);
+  return num.dividedBy(denom);
 }

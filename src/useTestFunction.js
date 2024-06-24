@@ -3,6 +3,7 @@ import {
   numberFormatter,
   numberLengthValidator,
   displayFormatter,
+  valueToNumber,
 } from "./CalculateReducer";
 
 // This is to avoid the error "Maximum update depth exceeded" displayed in the console
@@ -43,7 +44,7 @@ const useTestFunction = (dispatch, formula) => {
       setTest((prev) => (prev.length > 0 ? prev.slice(1) : prev));
       setCurrentTestCase(null);
       let formattedValue = numberFormatter(
-        numberLengthValidator(String(formula.result))
+        numberLengthValidator(formula.result)
       );
       let formattedDisplay = displayFormatter(String(formula.display));
 
