@@ -42,10 +42,12 @@ const useTestFunction = (dispatch, formula) => {
     if (currentTestCase) {
       setTest((prev) => (prev.length > 0 ? prev.slice(1) : prev));
       setCurrentTestCase(null);
-      let formattedValue = numberFormatter(
-        numberLengthValidator(String(formula.result))
-      );
-      let formattedDisplay = displayFormatter(String(formula.display));
+      // let formattedValue = numberFormatter(
+      //   numberLengthValidator(String(formula.result))
+      // );
+      let formattedValue = numberFormatter(String(formula.result));
+      // let formattedDisplay = displayFormatter(String(formula.display));
+      let formattedDisplay = String(formula.display);
 
       const debugId = "negate26.1";
 
@@ -68,6 +70,8 @@ const useTestFunction = (dispatch, formula) => {
           expected: currentTestCase.expected.result,
         });
       }
+      // console.log("Testcase: ", currentTestCase.id);
+      // console.log("result = ", formattedValue);
       if (
         String(formattedValue) === String(currentTestCase.expected.result) &&
         String(formattedDisplay) === String(currentTestCase.expected.formula)

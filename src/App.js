@@ -87,12 +87,13 @@ function App() {
           <h4>Calculator</h4>
         </div>
         <div>
-          <InputField values={displayFormatter(formula.display)} />
+          {/* <InputField values={displayFormatter(formula.display)} /> */}
+          <InputField values={formula.display} />
         </div>
         <div style={{ marginBottom: "5px" }}>
-          <InputField
-            values={numberFormatter(numberLengthValidator(formula.result))}
-          />
+          {/* <InputField
+            values={numberFormatter(numberLengthValidator(formula.result))} */}
+          <InputField values={formula.result} />
         </div>
         <div>
           <MemoButton dispatch={dispatch} error={error} />
