@@ -42,12 +42,12 @@ const useTestFunction = (dispatch, formula) => {
     if (currentTestCase) {
       setTest((prev) => (prev.length > 0 ? prev.slice(1) : prev));
       setCurrentTestCase(null);
-      // let formattedValue = numberFormatter(
-      //   numberLengthValidator(String(formula.result))
-      // );
-      let formattedValue = numberFormatter(String(formula.result));
-      // let formattedDisplay = displayFormatter(String(formula.display));
-      let formattedDisplay = String(formula.display);
+      let formattedValue = numberFormatter(
+        numberLengthValidator(formula.result)
+      );
+      // let formattedValue = numberFormatter(String(formula.result));
+      let formattedDisplay = displayFormatter(formula.display);
+      // let formattedDisplay = String(formula.display);
 
       const debugId = "negate26.1";
 
