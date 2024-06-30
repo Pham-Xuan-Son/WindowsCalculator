@@ -1,21 +1,4 @@
-import BigNumber from "bignumber.js";
-import { create, all } from "mathjs";
-// import { mathDecimal } from "./Math";
-
-
-const mathFraction = create(all, {
-  number: "Fraction",
-  precision: 64,
-  relTol: 1e-60,
-  absTol: 1e-63,
-});
-
-const mathDecimal = create(all, {
-  number: "BigNumber",
-  precision: 64,
-  relTol: 1e-60,
-  absTol: 1e-63,
-});
+import { mathDecimal, Fraction } from "./Math";
 
 const EditTarget = {
   None: 0,
@@ -71,7 +54,7 @@ class Calculator {
       }
     }
 
-    const displayFirstValue = toNumber(state.firstvalue)
+    const displayFirstValue = toNumber(state.firstvalue);
     return {
       ...state,
       editStatus: EditStatus.EditNumber,
@@ -85,7 +68,7 @@ class Calculator {
     };
   }
   operator(state, action) {
-    const validationResult = mathFraction.fraction(state.result);
+    const validationResult = new Fraction(state.result);
 
     const shouldCalculate =
       state.operator &&
@@ -105,7 +88,7 @@ class Calculator {
         ? state.firstvalue
         : calculateResult;
 
-    const displayFirstValue = toNumber(firstvalue)
+    const displayFirstValue = toNumber(firstvalue);
     return {
       ...state,
       operator: action.type,
@@ -127,7 +110,7 @@ class Calculator {
       }
     }
 
-    const displayFirstValue = toNumber(state.firstvalue)
+    const displayFirstValue = toNumber(state.firstvalue);
     return {
       ...state,
       editStatus: EditStatus.EditNumber,
@@ -163,8 +146,8 @@ class Calculator {
           : "",
     };
   }
-  ce(state) {    
-    const displayFirstValue = toNumber(state.firstvalue)
+  ce(state) {
+    const displayFirstValue = toNumber(state.firstvalue);
     return {
       ...state,
       editStatus: EditStatus.EditNumber,
@@ -178,18 +161,14 @@ class Calculator {
     };
   }
   fomulaOperator(state, action) {
-    // const result =
-    //   state.EditStatus === EditStatus.EditFormula
-    //     ? mathFraction.fraction(state.result)
-    //     : mathFraction.number(state.result);
-    const result = mathFraction.fraction(state.result);
+    const result = new Fraction(state.result);
     let firstvalue = state.firstvalue;
     let secondvalue = state.secondvalue;
 
     const formula = formulaBtnMapping[action.type];
 
-    const displayFirstValue = toNumber(state.firstvalue)
-    const displaySecondValue = toNumber(state.secondvalue)
+    const displayFirstValue = toNumber(state.firstvalue);
+    const displaySecondValue = toNumber(state.secondvalue);
 
     if (state.editStatus === EditStatus.EditFormula) {
       if (state.editTarget === EditTarget.Second) {
@@ -249,7 +228,7 @@ class Calculator {
   }
 
   percentage(state) {
-    const result = mathFraction.fraction(state.result);
+    const result = new Fraction(state.result);
     let firstvalue = state.firstvalue;
     let secondvalue = state.secondvalue;
 
@@ -259,19 +238,23 @@ class Calculator {
     if (state.operator) {
       if (isPlusOrMinus) {
         if (state.editTarget === EditTarget.Second) {
-          secondvalue = result.div(100).mul(calculate(firstvalue));
+          secondvalue = result
+            .divide(new Fraction(100))
+            .multiply(calculate(firstvalue));
         } else {
-          firstvalue = result.div(100).mul(state.rememberResult);
+          firstvalue = result
+            .divide(new Fraction(100))
+            .multiply(state.rememberResult);
         }
       } else {
         if (state.editTarget === EditTarget.Second) {
-          secondvalue = result.mul(0.01);
+          secondvalue = result.multiply(new Fraction(0.01));
         } else {
-          firstvalue = result.mul(0.01);
+          firstvalue = result.multiply(new Fraction(0.01));
         }
       }
     } else {
-      firstvalue = mathFraction.fraction(0);
+      firstvalue = new Fraction(0);
     }
 
     let display;
@@ -291,14 +274,14 @@ class Calculator {
     };
   }
   equal(state, action) {
-    const result = mathFraction.fraction(state.result);
+    const result = new Fraction(state.result);
 
     let calculateResult = result;
     let fomula = toNumber(result);
-    
-    const displayFirstValue = toNumber(state.firstvalue)
+
+    const displayFirstValue = toNumber(state.firstvalue);
     if (state.operator !== null) {
-      const displaySecondValue = toNumber(state.secondvalue)
+      const displaySecondValue = toNumber(state.secondvalue);
       if (state.editStatus === EditStatus.EditFormula) {
         calculateResult = calculate(
           state.firstvalue,
@@ -397,15 +380,24 @@ export default function calculateReducer(state, action) {
     };
   }
 }
-let frac = mathFraction.fraction(500).div(7);
-let num = mathFraction.isNaN(frac);
-let na = mathFraction.format(frac, { notation: "fixed" });
-let ro = mathDecimal.round(frac, 2);
-let dc = mathDecimal.bignumber(frac);
-// let nu = mathFraction.
-let sq = eval("sqrt(5)");
-console.log("num1", ro);
-console.log("num", dc);
+// let frac = mathFraction.fraction(500).div(7);
+// let num = mathFraction.isNaN(frac);
+// let na = mathFraction.format(frac, { notation: "fixed" });
+// let ro = mathDecimal.round(frac, 2);
+// let dc = mathDecimal.bignumber(frac);
+// // let nu = mathFraction.
+// let sq = eval("sqrt(5)");
+// console.log("num1", ro);
+// console.log("num", dc);
+// const fraction = new Fraction("9999999999999999");
+const fraction3 = new Fraction("7");
+const re = new Fraction("5");
+const fraction2 = mathDecimal.bignumber(re.toString());
+// const fraction1 = new mathFraction.fraction("5");
+const result = re.divide(fraction3);
+console.log("fraction", fraction2.toString());
+// console.log("fraction", fraction1);
+console.log("result", result.toString());
 
 function formulaConvert(formula) {
   formula = Object.keys(formulaFuncMapping).reduce((acc, key) => {
@@ -413,7 +405,7 @@ function formulaConvert(formula) {
   }, String(formula));
   let number = eval(formula);
   // let number = mathFraction.evaluate(formula);
-  return mathFraction.fraction(number);
+  return new Fraction(number);
 }
 
 function calculate(first, op, second) {
@@ -432,10 +424,10 @@ function calculate(first, op, second) {
       result = first.add(second);
       break;
     case "-":
-      result = first.sub(second);
+      result = first.subtract(second);
       break;
     case "*":
-      result = first.mul(second);
+      result = first.multiply(second);
       break;
     case "/":
       result = divide(first, second);
@@ -457,38 +449,41 @@ function isNaNResult(result) {
 }
 
 function divide(a, b) {
-  if (mathFraction.isZero(b)) {
-    if (mathFraction.isZero(a)) {
+  if (new Fraction(b).isZero()) {
+    if (new Fraction(a).isZero()) {
       throw "Result is undefined";
     }
     throw "Cannot divide by zero";
   }
-
-  return mathFraction.fraction(a).div(b);
+  return new Fraction(1, 1).multiply(a).divide(b);
 }
 
 function negate(value) {
-  return mathFraction.fraction(-1, 1).mul(value);
+  const newValue = new Fraction(value);
+  return new Fraction(-1, 1).multiply(newValue);
 }
 
 function sqr(value) {
-  return mathFraction.fraction(1, 1).mul(value).mul(value);
+  const newValue = new Fraction(value);
+  return new Fraction(1, 1).multiply(newValue).multiply(newValue);
 }
 
 function sqrt(value) {
-  if (mathFraction.isNegative(value)) {
+  const newValue = new Fraction(value);
+  if (new Fraction(value).isNegative()) {
     throw "Invalid input";
   }
-  // return mathFraction.sqrt(value);
-  return value;
+  return newValue.sqrt();
 }
 
 function recip(value) {
-  return divide(1, value);
+  const newValue = new Fraction(value);
+  const num = new Fraction(1, 1);
+  return divide(num, newValue);
 }
 
 function getMaxLength(result) {
-  return String(result).replace("-", "").trim().startsWith("0")
+  return String(result).replace("-", "").replace(".", "").trim().startsWith("0")
     ? PrecisionLength
     : PrecisionLength - 1;
 }
@@ -498,11 +493,32 @@ function resultLengthValidator(state) {
   return lengthOfResult >= getMaxLength(state.result);
 }
 
+function numberLengthLimiter(number, precision) {
+  const splirtedNumber = String(number).split(".");
+  const integerPart = splirtedNumber[0];
+  const fractionalPart = splirtedNumber[1] || "";
+
+  const numberLimitedLength = fractionalPart.slice(
+    integerPart.length - 1,
+    precision - 1
+  );
+  let result = `${integerPart}`;
+  if (String(numberLimitedLength).length > 0) {
+    result += `.${numberLimitedLength}`;
+  }
+  return result;
+}
+
 function toNumber(value) {
   if (isNaN(value)) {
     return value;
   }
-  return mathDecimal.bignumber(value).toSignificantDigits(getMaxLength(value)).toString()
+  const num = String(value).match(/\d/g);
+  if (num) {
+    if (num.length > getMaxLength(value))
+      return numberLengthLimiter(value, getMaxLength(value));
+  }
+  return String(value);
 }
 
 export function numberLengthValidator(value) {
