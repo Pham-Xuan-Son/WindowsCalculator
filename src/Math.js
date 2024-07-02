@@ -8,17 +8,20 @@ export const mathDecimal = create(all, {
 });
 
 export class Fraction {
-  constructor(numerator, denominator = 1) {
-    const number = String(numerator);
-    if (number.includes(".")) {
-      const [num, frac] = number.split(".");
-      const scale = Math.pow(10, frac.length);
-      this.numerator = mathDecimal.bignumber(num + frac);
-      this.denominator = mathDecimal.bignumber(scale);
-    } else {
-      this.numerator = mathDecimal.bignumber(number);
-      this.denominator = mathDecimal.bignumber(denominator);
+  constructor(value, denominator) {
+    if (value instanceof Fraction) {
+      this.numerator = value.numerator;
+      this.denominator = value.denominator;
+      return;
     }
+    if (denominator) {
+      this.numerator = mathDecimal.bignumber(value);
+      this.denominator = mathDecimal.bignumber(denominator);
+      return;
+    }
+    const [numer, denom] = mathDecimal.bignumber(value).toFraction();
+    this.numerator = mathDecimal.bignumber(numer);
+    this.denominator = mathDecimal.bignumber(denom);
   }
 
   add(fraction) {
@@ -66,6 +69,78 @@ export class Fraction {
   }
 
   toString() {
-    return this.numerator.div(this.denominator).toString();
+    const num = this.numerator.div(this.denominator);
+    const num2 = num.toSignificantDigits(16);
+
+    const number = String(num2.toFixed()).match(/\d/g);
+    const start0s = String(num2).replace(/\D/g, "").match(/^0*/)[0].length;
+
+    if (num2.precision(true) > 16 || number.length >= 18) {
+      return start0s
+        ? num2.toPrecision(16 + 1 - start0s)
+        : num2.toExponential();
+    }
+
+    return num2.toSignificantDigits(16 + 1 - start0s).toFixed();
   }
+}
+
+export function divide(a, b) {
+  if (new Fraction(b).isZero()) {
+    if (new Fraction(a).isZero()) {
+      throw "Result is undefined";
+    }
+    throw "Cannot divide by zero";
+  }
+  return a.divide(b);
+}
+
+const formulaFuncMapping = {
+  negate: "negate",
+  sqr: "sqr",
+  "√": "sqrt",
+  "1/": "recip",
+};
+
+export class NumberFormula {
+  constructor(value, formula) {
+    this.value = value;
+    this.formula = formula;
+  }
+
+  evaluate() {
+    let value = this.value;
+    if (this.value instanceof NumberFormula) {
+      value = this.value.evaluate();
+    }
+    return eval(`${formulaFuncMapping[this.formula]}(value)`);
+  }
+
+  toString() {
+    return `${this.formula}(${this.value})`;
+  }
+}
+
+function negate(value) {
+  const newValue = new Fraction(value);
+  return new Fraction(-1, 1).multiply(newValue);
+}
+
+function sqr(value) {
+  const newValue = new Fraction(value);
+  return newValue.multiply(newValue);
+}
+
+function sqrt(value) {
+  const newValue = new Fraction(value);
+  if (new Fraction(value).isNegative()) {
+    throw "Invalid input";
+  }
+  return newValue.sqrt();
+}
+
+function recip(value) {
+  const newValue = new Fraction(value);
+  const num = new Fraction(1, 1);
+  return divide(num, newValue);
 }

@@ -42,12 +42,12 @@ const useTestFunction = (dispatch, formula) => {
     if (currentTestCase) {
       setTest((prev) => (prev.length > 0 ? prev.slice(1) : prev));
       setCurrentTestCase(null);
-      let formattedValue = numberFormatter(
-        numberLengthValidator(formula.result)
-      );
-      // let formattedValue = numberFormatter(String(formula.result));
-      let formattedDisplay = displayFormatter(formula.display);
-      // let formattedDisplay = String(formula.display);
+      // let formattedValue = numberFormatter(
+      //   numberLengthValidator(formula.result)
+      // );
+      let formattedValue = numberFormatter(formula.result);
+      // let formattedDisplay = displayFormatter(formula.display);
+      let formattedDisplay = formula.display;
 
       const debugId = "negate26.1";
 
@@ -372,16 +372,9 @@ const testCases = [
       result: "0",
     },
   },
+
   {
-    id: "op" + 17.1, // remove this after fix
-    input: "1 / 0 = +",
-    expected: {
-      formula: "",
-      result: "DISABLED",
-    },
-  },
-  {
-    id: "op" + 17.2,
+    id: "op" + 17.1,
     input: "1 / 0 = Del",
     expected: {
       formula: "",
@@ -389,7 +382,7 @@ const testCases = [
     },
   },
   {
-    id: "op" + 17.3,
+    id: "op" + 17.2,
     input: "1 / 0 = Del 3 =",
     expected: {
       formula: "3 =",
@@ -548,6 +541,31 @@ const testCases = [
     expected: {
       formula: "333.3333333333333 - 333 =",
       result: "0.3333333333333333",
+    },
+  },
+  {
+    id: "op" + 33,
+    input:
+      ". 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 - 1 =",
+    expected: {
+      formula: "0.9999999999999999 - 1 =",
+      result: "-0.0000000000000001",
+    },
+  },
+  {
+    id: "op" + 34,
+    input: "1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 0 * 1 0 =",
+    expected: {
+      formula: "1234567891234560 * 10 =",
+      result: "1.23456789123456e+16",
+    },
+  },
+  {
+    id: "op" + 35,
+    input: ". 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 / 1 0 =",
+    expected: {
+      formula: "0.0000000000000123 / 10 =",
+      result: "1.23e-15",
     },
   },
   //test dot
@@ -1275,6 +1293,15 @@ const testCases = [
       result: "6",
     },
   },
+  {
+    id: "square" + 12,
+    input:
+      "9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 Del Del 8 7 x2",
+    expected: {
+      formula: "sqr(9999999999999987)",
+      result: "9.999999999999974e+31",
+    },
+  },
   //test 2√x
   {
     id: "2√x" + 1,
@@ -1316,6 +1343,14 @@ const testCases = [
       result: "2.449489742783178",
     },
   },
+  {
+    id: "2√x" + 6,
+    input: "5 2√x + 1 - 1 = x2",
+    expected: {
+      formula: "sqr(2.23606797749979)",
+      result: "5",
+    },
+  },
   //test 1/x
   {
     id: "1/x" + 1,
@@ -1355,6 +1390,14 @@ const testCases = [
     expected: {
       formula: "1/(57)",
       result: "0.0175438596491228",
+    },
+  },
+  {
+    id: "1/x" + 6,
+    input: "1 2 3 4 5 6 7 8 9 1 2 3 4 5 6 7 8 9 1/x",
+    expected: {
+      formula: "1/(1234567891234567)",
+      result: "8.100000065610006e-16",
     },
   },
   //test delete
