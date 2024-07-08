@@ -1,4 +1,4 @@
-import { mathDecimal, Fraction, NumberFormula, divide } from "./Math";
+import { Fraction, NumberFormula, divide } from "./Math";
 
 const EditTarget = {
   None: 0,
@@ -364,17 +364,7 @@ export default function calculateReducer(state, action) {
   }
 }
 
-// const fraction3 = new Fraction("7");
-// const re = new Fraction("5");
-// const fraction2 = mathDecimal.bignumber(re.toString());
-// const result = re.divide(fraction3);
-// console.log("fraction", fraction2.toString());
-// console.log("result", result.toString());
-
 function formulaConvert(formula) {
-  // formula = Object.keys(formulaFuncMapping).reduce((acc, key) => {
-  //   return acc.replace(new RegExp(key, "g"), formulaFuncMapping[key]);
-  // }, String(formula));
   if (formula instanceof NumberFormula) {
     let number = formula.evaluate();
     return new Fraction(number);
@@ -424,6 +414,9 @@ export function numberFormatter(value) {
   let formattedValue = String(value).replace("-", "").split(".")[0].trim();
 
   if (formattedValue.match(/\d/g) && formattedValue.length > 3) {
+    if (String(value).includes("e")) {
+      return String(value).replace("e", ".e");
+    }
     for (let i = formattedValue.length - 3; i > 0; i -= 3) {
       formattedValue =
         formattedValue.slice(0, i) + "," + formattedValue.slice(i);

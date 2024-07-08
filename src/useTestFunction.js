@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  numberFormatter,
-  numberLengthValidator,
-  displayFormatter,
-} from "./CalculateReducer";
+import { numberFormatter } from "./CalculateReducer";
 
 // This is to avoid the error "Maximum update depth exceeded" displayed in the console
 const originalConsoleError = console.error;
@@ -18,7 +14,7 @@ console.error = function (message, ...args) {
   originalConsoleError.apply(console, [message, ...args]);
 };
 
-const useTestFunction = (dispatch, formula) => {
+const useTestFunction = (dispatch, formula, showTests) => {
   const [currentTestCase, setCurrentTestCase] = useState(null);
   const [test, setTest] = useState([]);
   const [testStatus, setTestStatus] = useState([]);
@@ -42,15 +38,11 @@ const useTestFunction = (dispatch, formula) => {
     if (currentTestCase) {
       setTest((prev) => (prev.length > 0 ? prev.slice(1) : prev));
       setCurrentTestCase(null);
-      // let formattedValue = numberFormatter(
-      //   numberLengthValidator(formula.result)
-      // );
       let formattedValue = numberFormatter(formula.result);
-      // let formattedDisplay = displayFormatter(formula.display);
       let formattedDisplay = formula.display;
 
+      // debug only
       const debugId = "negate26.1";
-
       if (currentTestCase.id === debugId) {
         console.log(
           `Testcase: ${currentTestCase.id} ${
@@ -70,8 +62,8 @@ const useTestFunction = (dispatch, formula) => {
           expected: currentTestCase.expected.result,
         });
       }
-      // console.log("Testcase: ", currentTestCase.id);
-      // console.log("result = ", formattedValue);
+      // end debug
+
       if (
         String(formattedValue) === String(currentTestCase.expected.result) &&
         String(formattedDisplay) === String(currentTestCase.expected.formula)
@@ -109,9 +101,10 @@ const useTestFunction = (dispatch, formula) => {
     setDisplay(false);
     setCurrentTestCase(null);
     setTestStatus([]);
-    setTest(testCases);
-    console.log("Start Testing...");
-  }, []);
+    setTest(showTests ? testCases : []);
+    if (showTests)
+      console.log("Start Testing...");
+  }, [showTests]);
 
   return [testStatus, display];
 };
@@ -341,7 +334,7 @@ const testCases = [
     },
   },
   {
-    id: "op" + 14, // need fix
+    id: "op" + 14,
     input: "20 / 7 - 1 =",
     expected: {
       formula: "2.857142857142857 - 1 =",
@@ -561,11 +554,27 @@ const testCases = [
     },
   },
   {
+    id: "op" + 34.1,
+    input: "1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 * 1 0 =",
+    expected: {
+      formula: "1000000000000000 * 10 =",
+      result: "1.e+16",
+    },
+  },
+  {
     id: "op" + 35,
     input: ". 0 0 0 0 0 0 0 0 0 0 0 0 0 1 2 3 / 1 0 =",
     expected: {
       formula: "0.0000000000000123 / 10 =",
       result: "1.23e-15",
+    },
+  },
+  {
+    id: "op" + 35.1,
+    input: ". 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 / 1 0 =",
+    expected: {
+      formula: "0.0000000000000001 / 10 =",
+      result: "1.e-17",
     },
   },
   //test dot

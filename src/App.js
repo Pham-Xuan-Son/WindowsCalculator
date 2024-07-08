@@ -7,10 +7,7 @@ import useTestFunction from "./useTestFunction";
 import calculateReducer, {
   initialState,
   numberFormatter,
-  numberLengthValidator,
-  displayFormatter,
 } from "./CalculateReducer";
-import BigNumber from "bignumber.js";
 
 const calculate = [
   ["%", "CE", "C", "Del"],
@@ -21,51 +18,13 @@ const calculate = [
   ["+/-", "0", ".", "="],
 ];
 
-const notDisabledBtns = [
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "CE",
-  "C",
-  "Del",
-  "=",
-];
-let a = new BigNumber(1);
-let b = new BigNumber(3);
-let c = a.dividedBy(b);
-let x = new BigNumber("11111111111111");
-let y = x.multipliedBy("5723507230632470698734963476");
-let z = y.dividedBy("5723507230632470698734963476");
+const notDisabledBtns = "0 1 2 3 4 5 6 7 8 9 CE C Del =";
 
-// ("1.22 / 0.3 =");
-
-let first = {
-  numerator: 122,
-  denominator: 100,
-};
-
-let second = {
-  numerator: 3,
-  denominator: 10,
-};
-
-let result = {
-  numerator: 122 * 10,
-  denominator: 100 * 3,
-};
-
-console.log("bignumber", z.toString());
 function App() {
   const [formula, dispatch] = useReducer(calculateReducer, initialState);
 
-  const [testStatus, display] = useTestFunction(dispatch, formula);
+  const [showTests, setShowTests] = useState(false);
+  const [testStatus, display] = useTestFunction(dispatch, formula, showTests);
 
   const error = useMemo(() => {
     return formula.error;
@@ -75,29 +34,36 @@ function App() {
       className="App"
       style={{
         backgroundColor: "#141414",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        // justifyContent: "center",
         color: "white",
         alignItems: "center",
       }}
     >
       <div style={{ width: "230px" }}>
         <div>
-          <h4>Calculator</h4>
+          <h4>Windows Calculator</h4>
         </div>
         <div>
           <InputField values={formula.display} />
         </div>
         <div style={{ marginBottom: "5px" }}>
-          <InputField
-            values={numberFormatter(formula.result)}/>
+          <InputField values={numberFormatter(formula.result)} />
         </div>
         <div>
           <MemoButton dispatch={dispatch} error={error} />
         </div>
       </div>
-      <TestResultMemo testStatus={testStatus} display={display} />
+      <button
+          style={{ marginTop: "10px" }}
+          onClick={() => setShowTests(prev => !prev)}
+        >
+          {showTests ? "Hide Tests" : "Show Tests"}
+        </button>   
+      {showTests && (
+      <TestResultMemo testStatus={testStatus} display={display} />)}
     </div>
   );
 }
@@ -200,43 +166,44 @@ function TestChanges({ testStatus }) {
 
   useEffect(() => {
     if (!hasCompared.current) {
-      const previousTestStatus = JSON.parse(
-        sessionStorage.getItem("testStatus")
-      );
-
-      if (previousTestStatus && Array.isArray(previousTestStatus)) {
-        const changes = {};
-        testStatus.forEach((status) => {
-          changes[status.id] = {
-            id: status.id,
-            new: {
-              result: status.result,
-              formula: status.formula,
-              passed: status.passed,
-            },
-            input: status.input,
-            expected: {
-              result: status.expectedResult,
-              formula: status.expectedFormula,
-            },
-          };
-        });
-        previousTestStatus.forEach((status) => {
-          if (!changes[status.id]) {
-            changes[status.id] = {};
-          }
-          if (changes[status.id].new.passed !== status.passed) {
-            changes[status.id].old = {
-              result: status.result,
-              formula: status.formula,
-              passed: status.passed,
+      const lastTestJSON = sessionStorage.getItem("testStatus")
+      if (lastTestJSON) {
+        const previousTestStatus = JSON.parse(lastTestJSON);
+  
+        if (previousTestStatus && Array.isArray(previousTestStatus)) {
+          const changes = {};
+          testStatus.forEach((status) => {
+            changes[status.id] = {
+              id: status.id,
+              new: {
+                result: status.result,
+                formula: status.formula,
+                passed: status.passed,
+              },
+              input: status.input,
+              expected: {
+                result: status.expectedResult,
+                formula: status.expectedFormula,
+              },
             };
-          } else {
-            delete changes[status.id];
-          }
-        });
-        setChanges(changes);
-        hasCompared.current = true;
+          });
+          previousTestStatus.forEach((status) => {
+            if (!changes[status.id]) {
+              changes[status.id] = {};
+            }
+            if (changes[status.id].new && changes[status.id].new.passed !== status.passed) {
+              changes[status.id].old = {
+                result: status.result,
+                formula: status.formula,
+                passed: status.passed,
+              };
+            } else {
+              delete changes[status.id];
+            }
+          });
+          setChanges(changes);
+          hasCompared.current = true;
+        }
       }
 
       sessionStorage.setItem("testStatus", JSON.stringify(testStatus));
@@ -265,10 +232,8 @@ function TestChanges({ testStatus }) {
               key={index}
               style={{
                 textAlign: "left",
-                // whiteSpace: "pre-line",
                 display: "flex",
                 color: !status.new.passed ? "red" : "lightgreen",
-                // marginBottom: "5px",
               }}
             >
               {status.old ? (
@@ -302,7 +267,6 @@ function TestChanges({ testStatus }) {
                   <span
                     style={{ color: status.new.passed ? "lightgreen" : "red" }}
                   >{`[${status.new.result}]`}</span>
-                  {/* <br/>- Formula: old =&nbsp;{`[${status.old? status.old.formula : ""}]`} ; new =&nbsp;{`[${status.new.formula}]`} */}
                   <br />- Formula:&nbsp;
                   <span
                     style={{ color: status.old.passed ? "lightgreen" : "red" }}
@@ -359,7 +323,9 @@ const MemoButton = React.memo(({ dispatch, error }) => {
           onClick={() => {
             dispatch({ type: btn });
           }}
-          condition={error !== null ? !notDisabledBtns.includes(btn) : false}
+          condition={
+            error !== null ? !notDisabledBtns.split(" ").includes(btn) : false
+          }
         />
       ))}
     </ButtonBox>
@@ -370,18 +336,5 @@ const Debug = ({ text }) => {
   console.log(text);
   return null;
 };
-
-function isStrictMode() {
-  try {
-    // In strict mode, `this` in a function (not a method) is `undefined`.
-    // In non-strict mode, `this` is the global object (`window` in browsers).
-    (function () {
-      return !this;
-    })();
-    return false; // If no error is thrown, strict mode is not enabled
-  } catch (e) {
-    return true; // If an error is thrown, strict mode is enabled
-  }
-}
 
 export default App;
