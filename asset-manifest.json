@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/WindowsCalculator/static/css/main.f855e6bc.css",
+    "main.js": "/WindowsCalculator/static/js/main.52628086.js",
+    "static/js/453.83bdee10.chunk.js": "/WindowsCalculator/static/js/453.83bdee10.chunk.js",
+    "index.html": "/WindowsCalculator/index.html",
+    "main.f855e6bc.css.map": "/WindowsCalculator/static/css/main.f855e6bc.css.map",
+    "main.52628086.js.map": "/WindowsCalculator/static/js/main.52628086.js.map",
+    "453.83bdee10.chunk.js.map": "/WindowsCalculator/static/js/453.83bdee10.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.52628086.js"
+  ]
+}
