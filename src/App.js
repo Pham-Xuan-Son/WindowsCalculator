@@ -44,7 +44,7 @@ function App() {
     >
       <div style={{ width: "230px" }}>
         <div>
-          <h4>Windows Calculator</h4>
+          <h4>Windows Calculator Test</h4>
         </div>
         <div>
           <InputField values={formula.display} />
